@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>与宗萨钦哲仁波切对话 | 莫兰迪正念空间</title>
+
+    <!-- 引入谷歌衬线与无衬线优质字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS 用于基础现代布局 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide 图标库用于高级极简图标 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            /* 莫兰迪佛学色系 Morandi Zen Palette */
+            --color-bg-base: #f4efe9;      /* 仓米/浅泥色 - 极度平静的背景 */
+            --color-bg-side: #eae3da;      /* 檀香浅灰 - 侧边栏 */
+            --color-text-main: #4a443f;    /* 枯茶色 - 主文字 */
+            --color-text-muted: #8c8275;   /* 暮灰 - 融和次要文字 */
+            --color-accent: #c4a495;       /* 莫兰迪肉粉/灰粉 - 佛学慈悲温润色 */
+            --color-accent-light: #e5dac3; /* 酥油黄/淡金 */
+            --color-card-bg: rgba(255, 255, 255, 0.65);
+
+            --font-serif: 'Noto Serif SC', 'Playfair Display', Georgia, serif;
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--color-bg-base);
+            color: var(--color-text-main);
+            font-family: var(--font-sans);
+            transition: background-color 0.5s ease;
+            overflow: hidden;
+        }
+
+        .font-serif-zen {
+            font-family: var(--font-serif);
+        }
+
+        /* ==================== AUTH 注册登录遮罩 ==================== */
+        #auth-overlay {
+            position: fixed; inset: 0; z-index: 9998;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(150deg, #efe7dd 0%, #e3d6c6 100%);
+            transition: opacity 0.6s ease, visibility 0.6s;
+        }
+        #auth-overlay.hidden-auth { opacity: 0; visibility: hidden; pointer-events: none; }
+        .auth-card {
+            width: 360px; max-width: 90vw;
+            background: rgba(255,255,255,0.72);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 24px;
+            box-shadow: 0 24px 60px -16px rgba(120,95,70,0.35);
+            padding: 36px 30px 24px;
+            animation: authIn 0.6s cubic-bezier(0.22,1,0.36,1);
+        }
+        @keyframes authIn { from { opacity:0; transform: translateY(18px) scale(0.97);} to {opacity:1; transform:none;} }
+        .auth-brand { text-align: center; margin-bottom: 22px; }
+        .auth-brand h2 { font-size: 19px; color: var(--color-text-main); margin: 12px 0 4px; letter-spacing: 1px; }
+        .auth-brand p { font-size: 12px; color: var(--color-text-muted); }
+        .auth-tabs { display:flex; gap:8px; background:rgba(120,95,70,0.08); border-radius:12px; padding:4px; margin-bottom:18px; }
+        .auth-tabs button { flex:1; padding:8px 0; font-size:13px; border-radius:9px; color:var(--color-text-muted); transition:all .25s; font-weight:500; }
+        .auth-tabs button.active { background:#fff; color:var(--color-text-main); box-shadow:0 2px 8px rgba(120,95,70,0.12); }
+        .auth-form { display:flex; flex-direction:column; gap:14px; }
+        .auth-form label { display:flex; flex-direction:column; gap:6px; font-size:12px; color:var(--color-text-muted); }
+        .auth-form input { background:rgba(255,255,255,0.85); border:1px solid rgba(120,95,70,0.18); border-radius:11px; padding:11px 13px; font-size:14px; color:var(--color-text-main); transition:border .2s; }
+        .auth-form input:focus { outline:none; border-color:var(--color-accent); }
+        .auth-code-row { display:flex; gap:8px; }
+        .auth-code-row input { flex:1; }
+        .auth-code-row button { white-space:nowrap; padding:0 14px; font-size:12px; border-radius:11px; border:1px solid var(--color-accent); color:var(--color-accent); transition:all .2s; }
+        .auth-code-row button:disabled { opacity:.45; border-color:#bbb; color:#999; }
+        .auth-err { font-size:12px; color:#b25; min-height:14px; margin:-4px 0 0; }
+        .auth-submit { margin-top:6px; padding:12px 0; border-radius:12px; background:var(--color-accent); color:#fff; font-size:15px; font-weight:600; letter-spacing:2px; transition:filter .2s, transform .1s; }
+        .auth-submit:hover { filter:brightness(1.06); }
+        .auth-submit:active { transform:scale(0.985); }
+        .auth-foot { text-align:center; font-size:11px; color:var(--color-text-muted); margin-top:18px; line-height:1.6; }
+
+        /* 隐藏滚动条但保留滚动功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* ==================== 炫酷高级开场动画与铜磬 CSS ==================== */
+        #zen-splash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #231e1a; /* 深沉静谧的枯茶偏黑底色 */
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1.8s cubic-bezier(0.25, 1, 0.5, 1), visibility 1.8s;
+        }
+
+        /* 实体化铜磬（颂钵）设计 */
+        .singing-bowl-wrapper {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* 磬体半圆形视觉设计 */
+        .bowl-body {
+            position: absolute;
+            width: 120px;
+            height: 90px;
+            background: linear-gradient(180deg, #3a322c 0%, #2f2722 100%);
+            border: 2px solid rgba(196, 164, 149, 0.4);
+            border-radius: 10px 10px 100px 100px; /* 完美弧形钵体 */
+            box-shadow: inset 0 4px 20px rgba(0,0,0,0.6), 0 12px 30px rgba(0,0,0,0.5);
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 磬中心的"如"字或者轴心点 */
+        .bowl-center-text {
+            font-family: var(--font-serif);
+            color: var(--color-accent);
+            font-size: 24px;
+            letter-spacing: 0;
+            opacity: 0.65;
+            transform: translateY(-8px);
+            transition: opacity 0.3s, transform 0.3s;
+            user-select: none;
+        }
+
+        /* 磬垫/底座线 */
+        .bowl-cushion {
+            position: absolute;
+            bottom: 34px;
+            width: 60px;
+            height: 6px;
+            background-color: #1a1512;
+            border-bottom: 2px solid rgba(196, 164, 149, 0.2);
+            border-radius: 50%;
+        }
+
+        /* 悬停微光扩散 */
+        .singing-bowl-wrapper:hover .bowl-body {
+            border-color: var(--color-accent);
+            box-shadow: inset 0 4px 20px rgba(0,0,0,0.6), 0 0 25px rgba(196, 164, 149, 0.25);
+        }
+        .singing-bowl-wrapper:hover .bowl-center-text {
+            opacity: 1;
+            text-shadow: 0 0 10px rgba(196, 164, 149, 0.5);
+        }
+
+        /* 敲击时的物理微颤动效果 */
+        .bowl-hit-animate {
+            animation: bowlVibrate 0.1s linear 4;
+        }
+        @keyframes bowlVibrate {
+            0% { transform: translate(2px, 1px) rotate(0.5deg); }
+            50% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+            100% { transform: translate(1px, 2px) rotate(0deg); }
+        }
+
+        /* 击磬后的声波涟漪 */
+        .wave-ripple {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid var(--color-accent);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .wave-ripple.active {
+            animation: waveSpread 2.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+        @keyframes waveSpread {
+            0% { width: 100px; height: 100px; opacity: 0.8; filter: blur(0px); }
+            100% { width: 550px; height: 550px; opacity: 0; filter: blur(8px); }
+        }
+
+        /* 文字淡入提示 */
+        .splash-title-area {
+            opacity: 0;
+            transform: translateY(15px);
+            animation: fadeInText 2s ease forwards;
+            animation-delay: 0.4s;
+        }
+        @keyframes fadeInText {
+            to { opacity: 0.8; transform: translateY(0); }
+        }
+
+
+        /* --- 佛祖猫咪 CSS 动画插画 --- */
+        .zen-cat-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+        }
+        .cat-head {
+            width: 60px;
+            height: 50px;
+            background-color: var(--color-text-muted);
+            border-radius: 50% 50% 45% 45%;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            animation: catBreathe 4s ease-in-out infinite;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .cat-ear {
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 18px solid var(--color-text-muted);
+            position: absolute;
+            top: -8px;
+        }
+        .cat-ear.left { left: 6px; transform: rotate(-15deg); }
+        .cat-ear.right { right: 6px; transform: rotate(15deg); }
+        .cat-eye {
+            width: 10px;
+            height: 4px;
+            border: 2px solid var(--color-bg-base);
+            border-radius: 0 0 10px 10px;
+            border-top: none;
+            position: absolute;
+            top: 22px;
+        }
+        .cat-eye.left { left: 14px; }
+        .cat-eye.right { right: 14px; }
+        .cat-urna {
+            width: 5px;
+            height: 5px;
+            background-color: var(--color-accent);
+            border-radius: 50%;
+            position: absolute;
+            top: 12px;
+            left: 28px;
+            animation: uranGlow 3s ease-in-out infinite;
+        }
+        .cat-nose {
+            width: 4px;
+            height: 3px;
+            background-color: var(--color-bg-base);
+            border-radius: 50%;
+            position: absolute;
+            top: 28px;
+            left: 28px;
+        }
+
+        @keyframes catBreathe {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(-3px) scaleY(1.03); }
+        }
+        @keyframes uranGlow {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 气泡对话微动效 */
+        .message-appear {
+            animation: fadeInBlur 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        /* 对话轮次分隔：每一轮新提问前，加更大留白 + 一条淡淡的分隔线 */
+        #messages-wrapper > .turn-start:not(:first-child) {
+            margin-top: 2.75rem;
+            padding-top: 2.75rem;
+            position: relative;
+        }
+        #messages-wrapper > .turn-start:not(:first-child)::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 12%;
+            right: 12%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(120,113,108,0.22), transparent);
+        }
+        @keyframes fadeInBlur {
+            0% { opacity: 0; transform: translateY(12px); filter: blur(4px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        /* 打字机光标 */
+        .typing-cursor::after {
+            content: '●';
+            color: var(--color-accent);
+            margin-left: 4px;
+            font-size: 0.8em;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+        /* 磨砂玻璃高端质感 */
+        .glass-panel {
+            background: var(--color-card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex">
+
+    <!-- ==================== CORE AUDIO ENGINE ==================== -->
+    <script>
+        const ZenAudio = {
+            ctx: null,
+            init() {
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            playBowl() { // 温润颂钵声场（多泛音叠加）
+                this.init();
+                const t = this.ctx.currentTime;
+                const master = this.ctx.createGain();
+                master.gain.setValueAtTime(0.0001, t);
+                master.gain.exponentialRampToValueAtTime(0.5, t + 0.08);
+                master.gain.exponentialRampToValueAtTime(0.0001, t + 6.0);
+                master.connect(this.ctx.destination);
+                // 基频 + 泛音，营造金属钵的温暖共鸣
+                [[196, 0.55], [392, 0.28], [588, 0.14], [785, 0.07]].forEach(([f, g]) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(f, t);
+                    osc.frequency.linearRampToValueAtTime(f * 0.996, t + 6.0); // 极缓的音高衰减
+                    gain.gain.value = g;
+                    osc.connect(gain); gain.connect(master);
+                    osc.start(t); osc.stop(t + 6.0);
+                });
+            },
+            playClick() { // 极轻柔的木鱼/水滴声（低频、短促、不刺耳）
+                this.init();
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(420, t);
+                osc.frequency.exponentialRampToValueAtTime(180, t + 0.06);
+                gain.gain.setValueAtTime(0.025, t);
+                gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(t);
+                osc.stop(t + 0.13);
+            },
+            ambient: null,
+            startAmbient() { // 持续低吟的背景禅音（颂钵嗡鸣 + 缓慢起伏）
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                if (this.ambient) { // 已存在则恢复音量
+                    this.ambient.master.gain.cancelScheduledValues(this.ctx.currentTime);
+                    this.ambient.master.gain.linearRampToValueAtTime(0.12, this.ctx.currentTime + 1.2);
+                    return;
+                }
+                const t = this.ctx.currentTime;
+                const master = this.ctx.createGain();
+                master.gain.setValueAtTime(0.0001, t);
+                master.gain.linearRampToValueAtTime(0.12, t + 3.0);
+                master.connect(this.ctx.destination);
+                const oscs = [];
+                // 低频嗡鸣基底 + 五度泛音，营造空灵静谧的持续声场
+                [[98, 0.5], [147, 0.28], [196, 0.18]].forEach(([f, g]) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = f;
+                    gain.gain.value = g;
+                    osc.connect(gain); gain.connect(master);
+                    osc.start(t);
+                    oscs.push(osc);
+                });
+                // 极慢 LFO 让音量轻轻呼吸，避免呆板
+                const lfo = this.ctx.createOscillator();
+                const lfoGain = this.ctx.createGain();
+                lfo.frequency.value = 0.07;
+                lfoGain.gain.value = 0.04;
+                lfo.connect(lfoGain); lfoGain.connect(master.gain);
+                lfo.start(t);
+                oscs.push(lfo);
+                this.ambient = { master, oscs };
+            },
+            pauseAmbient() {
+                if (!this.ambient) return;
+                this.ambient.master.gain.cancelScheduledValues(this.ctx.currentTime);
+                this.ambient.master.gain.linearRampToValueAtTime(0.0001, this.ctx.currentTime + 0.8);
+            }
+        };
+    </script>
+
+    <!-- ==================== SCREEN SPLASH OVERLAY 实体击磬开场 ==================== -->
+    <div id="zen-splash-overlay">
+        <!-- 扩散声波卡位 -->
+        <div id="wave-container" class="absolute flex items-center justify-center pointer-events-none"></div>
+
+        <div class="text-center space-y-12 z-10 flex flex-col items-center">
+
+            <!-- 可交互击打的实体铜磬 -->
+            <div class="singing-bowl-wrapper" onclick="hitTheBowl(this)">
+                <div class="bowl-body" id="target-bowl">
+                </div>
+                <div class="bowl-cushion"></div>
+            </div>
+
+            <!-- 下方雅致标题 -->
+            <div class="space-y-3 splash-title-area">
+                <h2 class="font-serif-zen text-xl tracking-widest text-[#eae3da]">一切有为法，如梦幻泡影</h2>
+                <p class="text-xs text-stone-500 font-light tracking-widest">击磬入定</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== AUTH 注册登录遮罩 ==================== -->
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-brand">
+                <div class="zen-cat-container mb-2">
+                    <div class="cat-head">
+                        <div class="cat-ear left"></div>
+                        <div class="cat-ear right"></div>
+                        <div class="cat-eye left"></div>
+                        <div class="cat-eye right"></div>
+                        <div class="cat-urna"></div>
+                        <div class="cat-nose"></div>
+                    </div>
+                </div>
+                <h2 class="font-serif-zen">与宗萨钦哲仁波切对话</h2>
+                <p>登录后，开启你的修行对话</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button id="tab-login" class="active" onclick="switchAuthTab('login')">登录</button>
+                <button id="tab-register" onclick="switchAuthTab('register')">注册</button>
+            </div>
+
+            <!-- 登录表单 -->
+            <form id="form-login" class="auth-form" onsubmit="return doLogin(event)">
+                <label>手机号<input type="tel" id="login-phone" maxlength="11" placeholder="请输入 11 位手机号" autocomplete="off"></label>
+                <label>密码<input type="password" id="login-pass" placeholder="请输入密码"></label>
+                <p class="auth-err" id="login-err"></p>
+                <button type="submit" class="auth-submit">登 录</button>
+            </form>
+
+            <!-- 注册表单 -->
+            <form id="form-register" class="auth-form hidden" onsubmit="return doRegister(event)">
+                <label>手机号<input type="tel" id="reg-phone" maxlength="11" placeholder="请输入 11 位手机号" autocomplete="off"></label>
+                <label>验证码
+                    <span class="auth-code-row">
+                        <input type="text" id="reg-code" maxlength="6" placeholder="6 位验证码">
+                        <button type="button" id="reg-send" onclick="sendCode()">获取验证码</button>
+                    </span>
+                </label>
+                <label>法号<input type="text" id="reg-dharma" maxlength="12" placeholder="为自己取一个法号，如：寂照、明心"></label>
+                <label>密码<input type="password" id="reg-pass" placeholder="设置密码（至少 6 位）"></label>
+                <p class="auth-err" id="reg-err"></p>
+                <button type="submit" class="auth-submit">注册并进入</button>
+            </form>
+
+            <p class="auth-foot">本应用为非商业学习用途，账号与数据仅保存在你本机浏览器。</p>
+        </div>
+    </div>
+
+    <!-- ==================== SIDEBAR 侧边栏 ==================== -->
+    <aside class="w-72 flex-shrink-0 flex flex-col justify-between p-6 border-r border-stone-200/60" style="background-color: var(--color-bg-side);">
+        <div class="flex flex-col h-full overflow-hidden">
+            <!-- 品牌空间区 -->
+            <div class="mb-6 text-center">
+                <div class="zen-cat-container mb-2">
+                    <div class="cat-head">
+                        <div class="cat-ear left"></div>
+                        <div class="cat-ear right"></div>
+                        <div class="cat-eye left"></div>
+                        <div class="cat-eye right"></div>
+                        <div class="cat-urna"></div>
+                        <div class="cat-nose"></div>
+                    </div>
+                </div>
+                <h1 class="font-serif-zen text-lg font-medium tracking-wide" style="color: var(--color-text-main);">与宗萨钦哲仁波切对话</h1>
+                <p class="text-xs tracking-widest mt-1 opacity-60" style="font-family: var(--font-sans);">ZEN CAT COMPANION</p>
+                <div class="mt-3 flex items-center justify-center gap-2 text-xs" id="user-bar">
+                    <span class="opacity-70">法号</span>
+                    <span class="font-semibold" id="dharma-name" style="color: var(--color-accent);"></span>
+                    <button onclick="doLogout()" class="opacity-50 hover:opacity-100 transition-opacity" title="登出"><i data-lucide="log-out" class="w-3.5 h-3.5"></i></button>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <button onclick="createNewSession()" class="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl border border-stone-300/80 bg-white/40 hover:bg-white/80 transition-all duration-300 text-sm font-medium tracking-wide group">
+                <i data-lucide="plus" class="w-4 h-4 transition-transform group-hover:rotate-90"></i>
+                开启新因缘
+            </button>
+
+            <!-- 会话历史列表 -->
+            <div class="mt-6 flex-1 overflow-y-auto no-scrollbar space-y-2 pr-1" id="session-list">
+                <!-- 动态渲染 -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- ==================== MAIN CONTENT AREA 主空间 ==================== -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+
+        <!-- 顶栏状态指示 -->
+        <header class="h-16 border-b border-stone-200/40 px-8 flex items-center justify-between bg-white/20 backdrop-blur-md z-10">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-emerald-600/60 animate-pulse"></div>
+                <span class="text-xs font-medium tracking-wider text-stone-500 uppercase" id="current-topic-badge">觉察当下</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <button onclick="toggleAmbient()" class="text-stone-400 hover:text-stone-600 transition-colors p-1.5 rounded-lg hover:bg-stone-200/40" title="背景禅音" id="ambient-toggle-btn">
+                    <i data-lucide="volume-2" class="w-4 h-4"></i>
+                </button>
+                <button onclick="clearCurrentMessages()" class="text-stone-400 hover:text-stone-600 transition-colors p-1.5 rounded-lg hover:bg-stone-200/40" title="清空当下对话">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 聊天流容器 -->
+        <div class="flex-1 overflow-y-auto px-8 md:px-16 py-8 space-y-6 no-scrollbar" id="chat-flow-container">
+            <!-- 初始欢迎问候流 -->
+            <div id="welcome-space" class="max-w-2xl mx-auto text-center py-12 space-y-8 message-appear">
+                <div class="space-y-3">
+                    <h2 class="font-serif-zen text-2xl md:text-3xl font-medium tracking-wide text-stone-800">心若安住，万象自寂</h2>
+                    <p class="text-sm text-stone-500/90 font-light max-w-md mx-auto leading-relaxed">
+                        坐下来，泡一杯茶。问你心里那个一直没问出口的问题——也许你要的不是答案，而是看清楚问题本身。
+                    </p>
+                </div>
+
+                <!-- 推荐主题引导 (STARTERS) -->
+                <div class="space-y-3">
+                    <p class="text-xs font-semibold tracking-widest text-stone-400/80 uppercase">点击开启智慧参悟</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto" id="starters-grid">
+                        <!-- 动态注入 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 动态消息队列 -->
+            <div id="messages-wrapper" class="max-w-5xl mx-auto space-y-8 hidden"></div>
+        </div>
+
+        <!-- 底部输入框与免责声明区 -->
+        <footer class="p-6 md:p-8 bg-gradient-to-t from-stone-100/90 via-stone-100/40 to-transparent">
+            <div class="max-w-2xl mx-auto space-y-4">
+
+                <!-- 输入控制面板 -->
+                <div class="glass-panel rounded-2xl shadow-sm p-2 flex items-center gap-2 transition-all duration-300 border border-stone-300/40">
+                    <input type="text" id="user-query"
+                           class="flex-1 bg-transparent px-4 py-3 text-sm text-stone-800 placeholder-stone-400 focus:outline-none"
+                           placeholder="写下你的困惑……（例如：如何面对无常、放不下一段感情、总是很焦虑）"
+                           onkeydown="if(event.key === 'Enter') handleSendSubmit()">
+
+                    <button onclick="handleSendSubmit()" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300" style="background-color: var(--color-accent); color: white;" id="send-btn">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- 免责声明 -->
+                <div class="text-center">
+                    <p class="text-[11px] tracking-wide text-stone-400/90 font-light leading-normal">
+                        🔒 本应用为<strong>非商业的学习用途</strong>，回应系基于公开资料的模拟，<strong>并非仁波切本人</strong>。内容版权归原作者所有，如有不当请联系删除。
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- ==================== CORE KNOWLEDGE BASE & LOGIC ==================== -->
+    <script>
+        /* ============ 推荐问题 ============ */
+        const STARTERS = [
+            { text: "我最近很焦虑，总觉得人生还没真正开始，怎么办？" },
+            { text: "有一段感情我明知该放下，却怎么也放不下。" },
+            { text: "我很害怕失去在乎的人和东西，如何面对无常？" },
+            { text: "这么忙碌的现代生活里，普通人还谈得上修行吗？" }
+        ];
+
+        /* ============ 知识库：主题（关键词匹配 + 仁波切口吻要点） ============ */
+        const TOPICS = [
+            { id: "焦虑与当下", deep: true, keywords: ["焦虑","压力","不安","迷茫","空虚","内耗","担心","未来","emo","抑郁","心慌","坐立不安"],
+              flow: [
+                "先说句你大概不爱听的：你不是被事情压垮的，是被那个还没发生的“以后”压垮的。你担心的几乎每一件事，都站在未来那一边——还没来、可能来、怕它来。\n\n这正是“自我”最拿手的把戏：让你永远追着未来跑，让你相信真正的人生还在前面，眼下只是彩排。于是你活在一个永远到不了的地方，当然安不下来。\n\n焦虑也不是因为事情真有那么多，是因为你在死死攥一个根本攥不住的东西——一个还不存在的结果。\n\n下次它再升起，别忙着扑灭它。问一句更狠的：此刻正在发生的、真正出问题的事，到底有几件？",
+                "你一直想着怎么“消灭”焦虑，对不对？可你越想干掉它，它越大。因为对抗，本身就是在喂它。\n\n你不妨换个问题：那个焦虑的“我”，到底在哪里？你说“我很焦虑”，可你找找看——它在胸口、在脑子里、还是只是一团你信以为真的念头？你越往里找，越会发现抓不到一个实体。\n\n这不是文字游戏。当你能“看着”焦虑，而不是“变成”焦虑，你就已经不在它里面了。\n\n所以别急着求一个让你舒服的答案。先看清：是谁，在害怕？",
+                "我不打算劝你“放轻松”——那种话毫无用处，你自己也知道。\n\n真相反而冷一点：你之所以紧绷，是因为你偷偷相信，只要再想周全一点、再控制多一点，就能保证未来不出错。但没有人能保证，从来没有。你抓的是一个幻觉。\n\n承认“我控制不了结果”，听起来像投降，其实是松绑。当你不再假装能掌控一切，那股一直绷着的力，才有地方卸下来。\n\n你愿意承认，有些事，本来就不在你手里吗？",
+                "焦虑里藏着一个你没注意的傲慢：你以为这一切都得由你扛、由你摆平。\n\n但你只是因缘里的一环，不是导演。事情怎么发展，由无数你看不见的条件决定，不是光靠你熬夜担心就能改写的。\n\n这不是叫你摆烂，是叫你把“担心”换成“去做眼前这一件小事”——担心是空转，行动才落地。其余的，交给它本来的进程。\n\n你现在的焦虑，有多少是在解决问题，又有多少只是在反复折磨自己？",
+                "你说空虚、迷茫，找不到意义——这其实不全是坏事，说明你不再被那些现成的答案轻易喂饱了。\n\n但要小心：人一空，就急着拿点什么来填，刷手机、找人、定新目标。这只是把同一个不安，换了个对象继续喂。\n\n试试别急着填。在那个空里待一会儿，看它到底是什么。很多时候，它不是缺了什么，是你终于安静到，能听见自己了。\n\n你上一次什么都不做、只是和自己待着，是什么时候？"],
+              close: ["你愿意，就让它来，也让它走。你觉得，它真的是“你”吗？"] },
+            { id: "执着与放下", deep: true, keywords: ["执着","放不下","放下","舍不得","占有","贪","得失","分手","失恋"],
+              flow: [
+                "先戳破一件事：谁规定“拥有”就是好、“失去”就是坏？这个二选一，是你自己签下的卖身契，痛苦从这里开始。\n\n你以为自己放不下的是那个人、那件事，其实勒着你脖子的，是“它必须属于我”这个念头——不是它，是你对它的抓取。\n\n所以别再追问“怎么放下”，那还是在用力。先看清：是你拿着它，还是它早就拿着你了？\n\n看清这一点，比任何“放下技巧”都有用。",
+                "你说放不下。那我问你：你放不下的，是那个真实的他，还是你脑子里那个“他本该一直在”的版本？\n\n人多半是被后者折磨的。事情已经变了，你的心却还停在它没变的时候，这中间的落差，就是你日夜在受的苦。你不是在为失去哭，是在为“它不该失去”哭。\n\n而“它不该变”——这恰恰是最大的错觉，因为没有任何东西，是不变的。\n\n你愿意承认，你抓着的，其实是一个已经不在了的版本吗？",
+                "放下不是把东西扔掉，也不是逼自己假装不在乎——那种用力的“我已经放下了”，往往最没放下。\n\n真正的松开，是你依然可以爱它、珍惜它，但心里清楚：它来过，是恩典；它走了，是常态。你不必为了不痛，就去恨它、贬低它。\n\n有个很朴素的检验：从前一件能轻易激怒你、让你整夜翻来覆去的事，哪天你能笑一下说“算了”，你就真的从那里走出来了。不是压住了，是松开了。\n\n那件事，你现在想起来，还烫手吗？",
+                "我也不是一个能轻易放下的人，所以我不会站在高处劝你“看开点”。\n\n但有件事值得说：你抓得越紧，越疼。这不是诗，是手的物理。攥着一团火炭还不肯松手，烫的是你自己，不是那团火。\n\n你不需要立刻松开，那也是一种勉强。你只需要在每一次想死死抓住的时候，先停半秒，问一句：再抓下去，到底是它在伤害我，还是我在用它伤害自己？\n\n光是问出这句，手就已经松了一点。",
+                "失去之所以那么痛，还有一个少有人承认的原因：它动摇了你对“我是谁”的定义。你把太多的自己，寄存在了那个人、那件事身上，它一走，你觉得自己空了一块。\n\n但那一块，从来都是你的，只是你忘了。它不在别人手里。\n\n所以这场失去，也可以是一次归还——把寄存在外面的自己，一点点收回来。\n\n如果那个人、那件事从未出现过，你会是一个不完整的人吗？真的会吗？"],
+              close: ["先别急着放下那个东西。你能不能，先松开那只攥紧的手？"] },
+            { id: "无常与变化", deep: true, keywords: ["无常","变化","死亡","离别","结束","时间","流逝","告别","害怕失去","分别"],
+              flow: [
+                "你怕的不是“变”，是变里你不喜欢的那一半。你要相聚，不要分离；要得到，不要失去。可你有没有想过，这两半本来就是同一件事——没有生，哪来的死；没有得，哪来的失。\n\n你想从一枚硬币上只留正面，这本身才是痛苦的根。\n\n无常不偏心，它把好的坏的一起带来、一起带走。你越想只截留好的那一段，越是跟整个世界的运行方式作对。\n\n你愿意要完整的真相，还是只要那个让你舒服的半句？",
+                "我们都偷偷希望好东西能停在原地。但你冷静看看：你的身体、你的关系、你此刻这个念头，哪一样停过？没有，一秒都没有。\n\n问题从来不是“无常”，是我们一边泡在无常里，一边拼命假装它不存在。这种自欺，才是痛的真正出处。\n\n所以无常不是坏消息。恰恰因为一切会变，伤口才会愈合，绝境才会松动，没有什么被永远钉死。\n\n你是要继续跟“它怎么又变了”较劲，还是开始学着，在它变之前好好用它？",
+                "说一句听起来冷、其实最慈悲的话：你会死，你爱的人也会死，你拥有的一切终将散去。这不是诅咒，是入场就写好的条款。\n\n大多数人一辈子假装这条款不存在，于是死亡一逼近，就彻底慌了，因为从没准备过。\n\n而真正把无常放在心上的人，反而活得更醒：他知道这杯茶可能是最后一杯，所以这杯茶，他喝得比谁都认真。\n\n如果你清楚地知道时间有限，今天这一天，你还舍得这样浪费吗？",
+                "你害怕失去某个人、某样东西——但你有没有发现，你其实是在为一件还没发生的事，提前受苦？\n\n这是“自我”的又一个圈套：它用想象中的失去，偷走你本该和对方在一起的此刻。你忙着怕失去，反而没真正拥有过。\n\n与其拿未来的别离折磨现在，不如把那份怕，翻译成此刻的全心在场——既然会失去，就更不该走神。\n\n你是想用剩下的时间担心他会走，还是认认真真地，再陪他一程？",
+                "无常最容易被误解成消极：反正都会散，那还认真什么？这是把话听反了。\n\n正因为会散，认真才有重量。一朵花不会因为会谢就不值得看，恰恰因为会谢，它此刻才这么美。\n\n看透无常，不是让你冷掉、抽离，是让你不再把力气浪费在“让它别变”上，而是全部投进“此刻好好待它”里。\n\n那么，对你眼前正拥有的，你是更珍惜了，还是更想抓牢了？这两者，差得很远。"],
+              close: ["如果连这口气都不一定属于你，你还要把它浪费在懊恼上吗？"] },
+            { id: "情绪与自我", deep: true, keywords: ["情绪","愤怒","生气","难过","痛苦","委屈","愤恨","烦躁","怨恨","脆弱","暴躁","发火","控制情绪"],
+              flow: [
+                "情绪炸起来的时候，你通常只有两个反应：要么硬压下去，要么任它把你冲走。但你没注意到，这两种做法，都默认了一件事——这情绪“就是我”。\n\n停半秒，换个说法试试：不是“我很愤怒”，是“愤怒，此刻正经过我”。前一句，你是那团火；后一句，你是看着火的人。\n\n这不是玩文字。情绪、感受、念头，都不是你，它们是过境的云，你是那片天。云再黑，也烧不毁天。\n\n下次它再翻上来，你能不能不急着平息，只是盯着它看，看它自己怎么起、怎么落？",
+                "你先别急着骂自己“怎么又破防了”——那只是往火上再浇一桶油。\n\n听清一件事：让你痛的，往往不是发生的那件事，是你心里那句“它不该这样”。痛苦多半不是外面砸进来的，是你自己的反应酿出来的。\n\n而每一股强烈情绪的正中央，都杵着一个“我”：我被冒犯、我受委屈、我不该被这样对待。你越往那个“我”里钻，火烧得越旺。\n\n所以别问“怎么把情绪消灭”，问：此刻这么疼的那个“我”，到底是谁？",
+                "你说想“控制情绪”——但我得提醒你，控制本身，也是一种对抗，而对抗只会让它更顽固。\n\n真正的高手不跟情绪打架。情绪来了，他看着；情绪走了，他也不挽留。他知道一个秘密：没有一种情绪能持续燃烧，除非你不断给它添柴——而反复回想、反复讲那个让你委屈的故事，就是在添柴。\n\n你不需要压住它，也不需要发泄它，你只需要：停止喂它。\n\n你愿不愿意，这一次，不再把那个让你生气的剧情，在脑子里重播第十遍？",
+                "别因为自己情绪大就觉得低人一等。恰恰相反——烦恼最重的人，往往离觉醒最近，因为他有最多的东西可看。莲花本来就长在淤泥里，不在干净的瓷砖上。\n\n但注意，这不是叫你为情绪多而得意，更不是纵容自己乱发脾气。意思是：你不必把情绪当敌人。它是燃料，看你拿它取暖，还是拿它烧房子。\n\n那些汹涌的难过、愤怒、嫉妒，每一个都在指给你看：这里有一个你抓得太紧的“我”。\n\n这一次的情绪，它想让你看见的，是哪一个你不肯松手的执着？",
+                "真正的强大，不是刀枪不入、永远平静——那是装出来的麻木。真正的强大，是允许。\n\n允许自己难过，允许自己狼狈，允许自己付出了却没有回报，允许事情就是没按你想的来。你越不允许，越拧巴；越允许，反而越松。\n\n这不是认输，是不再跟现实较劲。现实已经发生了，你心里那场“它不该这样”的抗议，才是多出来的第二支箭。\n\n第一支箭已经射中你了，你还要不要，自己再补第二支？"],
+              close: ["你能看见这股情绪吗？能看见，你就已经站在岸上了。"] },
+            { id: "快乐与意义", deep: true, keywords: ["快乐","幸福","意义","开心","满足","空","无聊","乏味","活着","人生","值得"],
+              flow: [
+                "你在追的那个“从此一直快乐”，我直说：它没在任何人身上发生过，一个都没有。不是你不够努力，是这东西根本不存在。\n\n我们平常说的“幸福”，多半只是痛苦暂时停了一下，像挤掉一颗痘那一瞬的舒服——它之所以爽，是因为前面在痒、在痛。痛一停，过会儿空落落又回来了。\n\n所以把人生押在“得到更多”上，是个无底洞：得到了想要更多，得不到又难受。\n\n你有没有算过，你这辈子追到的那些“想要”，有哪一个，真的让你从此满足了？",
+                "你觉得空、觉得没意思——别急着把它当病治。它反而是个好消息：说明那些“得到就会快乐”的承诺，开始骗不了你了。\n\n但接下来这一步最危险：人一空，就慌着拿东西去填——刷手机、谈恋爱、定个新目标。这不过是把同一个空，换了个填法，下一轮照样空。\n\n空不是个洞，等着你拿什么塞满。空是你终于安静到，能看见自己一直在乱抓。\n\n你确定你要的是“填满”，还是其实，你只是没学会怎么和这份空待在一起？",
+                "别误会“修行”或者“看开”这种词——它们不是来哄你岁月静好的。恰恰相反，真东西是来掀翻你的，掀翻你对“什么会让我快乐”的全部假设。\n\n你以为快乐在“多”那一头：多赚点、多被爱一点、多成功一点。但你回头看那些你羡慕的、什么都有的人，有几个是真的安的？\n\n快乐很可能在反方向——不在“想要更多”，在“需要更少”。需要得越少，能点亮你的东西就越多。\n\n如果明天开始你什么都不再多要，你会害怕，还是会松一口气？",
+                "你问活着有什么意义——这个问题本身就埋了个陷阱：它假设意义是个藏在远方、等你找到的宝藏。\n\n但意义不在远方那个宏大目标里，它藏在最普通的此刻：好好吃一顿饭、好好跟一个人说话、好好走一段路。你嫌这些太小，于是错过了它们，然后抱怨人生空洞。\n\n不是人生没有意义，是你一直盯着别处，没在你正活着的这一刻待过。\n\n你上一次全心全意地做一件小事、中途没去想别的，是什么时候？",
+                "满足和贪心，是两种完全不同的活法。满足的人，几乎不会无聊，因为眼前这一点就够他品的；贪心的人，给他整个世界，他还在算少了哪一块。\n\n问题是，我们这个时代，所有东西都在训练你贪心——广告、橱窗、别人的朋友圈，没有一样想让你“知足”，因为你一知足，它们就赚不到钱了。\n\n所以“满足”在今天，几乎是一种叛逆。\n\n你是真的缺那么多，还是只是被教会了，永远觉得自己缺？"],
+              close: ["如果幸福不在“得到更多”，那它会不会，一直在“想要更少”那一边？"] },
+            { id: "关系与爱", deep: true, keywords: ["爱情","关系","婚姻","伴侣","孤独","喜欢","爱","在一起","男朋友","女朋友","结婚","暧昧"],
+              flow: [
+                "先把一个真相摆桌上：你想要有人陪，是因为孤单；你又想要完全自由，是因为自私。这两个愿望天生打架，几乎每一段关系的拧巴，都从这儿开始。\n\n而当两个人在一起，本质上是两个“我执”、两团不安全感撞在了一起。所以会摩擦、会吵，几乎是必然——别一吵架就怀疑“是不是选错了人”，很多时候那只是关系的原貌。\n\n出路不在“找到对的人”，在你肯不肯松手：你可以深深欣赏一个人，却不必把他攥死。抓得越紧，两个人越喘不过气。\n\n所谓“对的人”，不是一个等你去寻获的现成商品，而是两个不完美的人，愿意一次次选择对方、磨合彼此的过程。你以为别人是命中注定，其实他们只是没有在第一次失望时就转身离开。\n\n你爱的，到底是那个真实的他，还是你投射上去那个“他该有的样子”？",
+                "你以为爱一个人最难的是付出。不是。最难的是放下那句“我希望你变成我想要的样子”。\n\n大多数所谓的爱，其实是爱自己的期待——你爱的是“他能给我的东西”，一旦他不给了，爱就翻脸成怨。这话不好听，但你诚实看看，是不是这样。\n\n真正的爱里有一种罕见的东西：让对方做他自己，哪怕那个自己，不完全合你意。\n\n这很难，因为它要求你承认一件事：对方不是为了满足你的剧本才存在的，他有他自己的人生要过。当你能由衷地希望他好——哪怕那个“好”里不一定有你——你才第一次触到了爱的边缘。在那之前，你爱的多半还是你自己。\n\n你愿意爱一个真实、会让你失望的人，还是只想爱一个你脑子里完美的影子？",
+                "我得说句煞风景的话：把你的幸福，整个押在另一个人身上，是一笔注定亏本的买卖。\n\n因为一旦“非得他爱我、非得这段关系成，我才能好”，你就把自己的命脉交到了别人手里，同时也把一座大山压在了对方背上。没有人扛得动“你全部的幸福”，这种重量只会把人吓跑。\n\n先把自己活成一个完整的人，不靠谁来补全，再带着这份从容去爱——那样的爱才轻盈，对方也才接得住。\n\n这不是叫你冷淡，也不是叫你别去爱。恰恰相反：两个本就完整的人相爱，是“我有你会更好”，而不是“我没你就活不了”。前者是锦上添花，后者是溺水的人抓另一个溺水的人——那不是爱，是互相拖下去。\n\n如果他明天离开，你会失去一段关系，还是会失去整个自己？这两个答案，差得很远。",
+                "你说孤独，所以想找个人。但我提醒你一件残酷的事：换一个人，填不平孤独，因为孤独不在外面。\n\n那个总觉得缺一块、安不下来的“自我”，本质上就是孤独的——它像个无家可归的人，到处找归属，却拒绝承认自己根本没有家。你拿一段关系去堵它，它消停几天，又开始饿。\n\n先看清这一点，你才不会带着“你必须治好我的孤独”这种隐形要求去靠近一个人——那种要求，最毁关系。\n\n说一句更违反直觉的：只有当你能独自待着、并且不慌的时候，你才真正有资格进入一段关系。否则你不是去爱，是去抓救命稻草。一个学会了和自己独处的人，反而能给出最不黏腻、最让人舒服的陪伴。\n\n你是想找一个人来填满你，还是想先弄明白，那个一直喊饿的，到底是谁？",
+                "关于爱，还有一层很少人愿意承认：恋爱是会骗人的。热恋时你连他咀嚼的声音都觉得可爱，可那声音本身没变，变的是你给它蒙上的滤镜。\n\n这不是说爱是假的，而是说——很多时候，你爱上的是自己投射出去的幻象，不是那个真实的、会老会烦会犯错的人。等滤镜褪了，你以为是“不爱了”，其实只是第一次看见了真实。\n\n能在滤镜褪去之后，依然选择善待对方，那才开始接近真正的爱。\n\n热恋是命运送的礼物，不需要你出力；而滤镜褪去之后还选择留下、选择理解，这才是你自己挣来的东西。多数人把前者当成爱的全部，所以一旦心动消退就以为爱没了——其实那一刻，真正的爱才刚要开始。\n\n你和他之间，现在还剩多少是滤镜，多少是真的看见了彼此？"],
+              close: ["你爱的是那个人，还是你投射在他身上的那个“应该”？"] },
+            { id: "修行与佛法", keywords: ["修行","佛法","禅修","打坐","冥想","正念","皈依","出家","上师","佛教","开悟","证悟","信仰"],
+              open: ["先说句让你不舒服的：佛法不是来让你开心的。","你不必先变成“佛教徒”，才能开始看清自己。"],
+              points: ["修行不只是盘腿静坐，而是不停地跟自己的傲慢和我执较劲——明白这点，你此刻就开始了。","所有方法都像渡船，过了河就要舍船。别抱着“佛教”这艘船不放——佛陀自己也不是佛教徒。","判断不在烧香吃素，而在你是否真的接受：无常、苦、无我、涅槃超越概念。"],
+              close: ["修得好不好，看一个地方就够了：你的烦恼，是多了还是少了？"] },
+            { id: "空性与见地", keywords: ["空性","空","无我","本质","实相","见地","真实","虚幻","幻觉","存在"],
+              open: ["你想抓住一个“真实的、不变的我”，可越找，越找不到。","空，不是什么都没有；是没有一个钉死的、独立的本质。"],
+              points: ["若你能彻底看清某个现象没有本质，就能对治一切痛苦——这叫“一药治百病”。","佛教不是逃避现实，恰恰是面对现实：看穿我们误以为真的那场幻觉。","别从“实有”一下跳到“实无”——“这都是假的”本身，也是一种该放下的边见。"],
+              close: ["那个让你受苦的东西，你确定它真的像你以为的那样，结结实实地存在吗？"] },
+            { id: "朝圣·正念·佛性", keywords: ["朝圣","圣地","正念","冥想","当下","意义","知足","佛性","潜能","成佛","希望","旅行","出发","福德","随喜","供养"],
+              open: ["你以为要走到某个“圣地”才算开始，可重点从来不是到达，是动机。","你身上其实已经有那个东西了，只是你一直向外去找。"],
+              points: ["朝圣也好、修行也好，不是去打卡、拍照、满足好奇，而是借外境帮自己忆起教法、看清自己的心。","灵性的“富有”是知足：当你不再用“我还缺什么”的想象折磨自己，你当下就富有了。","佛性就像芝麻里的油——你是有情众生，就本具证悟的潜能；染污再厚也是暂时的、能去除的。相信籽里有油，是正见；凿石求油，才会失望。","随喜别人的好，是积聚福德最省力的方式，也是对治嫉妒最强的方法。"],
+              close: ["所以别急着出发去哪里。此刻你坐着的地方，能不能就是你的菩提树下？"] },
+            { id: "工作与内耗", keywords: ["工作","上班","职场","加班","内耗","拖延","效率","忙","累","卷","躺平","压力","事业","摸鱼","裸辞","离职","KPI","老板","同事","打工"],
+              open: ["先问你一句：你那么拼，到底是在追什么，还是只是在逃什么？","我见过太多人，努力工作十一个月，只为换一个月的假期——你有没有想过，这件事本身有点荒谬？"],
+              points: ["你之所以累，往往不是事多，而是你把“达不到那个标准”当成了对自我的否定。而那些标准，不过是水面的涟漪。","拖延不是懒，是那个被惯坏的、顽童般的心在闹脾气——别跟它较劲，也别恨它，只是看着它，然后做你该做的下一件小事。","工作本身从来不是问题，对成功的贪着才是。不管做到多高，执着的心总会说“还不够”。"],
+              close: ["如果明天就是你工作的最后一天，今天这场焦虑，还值得你这样耗着吗？"] },
+            { id: "自我价值与攀比", keywords: ["自卑","自我价值","价值感","不配","配不上","比较","攀比","羡慕","嫉妒","别人家","落后","平庸","没用","废物","存在感","认可","被否定","优秀","内卷","焦虑感"],
+              open: ["你拿什么衡量自己？如果是“拥有多少”，那你早就忘了自己究竟是谁。","你羡慕的那个人，他自己也在羡慕别人。这条链子，没有尽头。"],
+              points: ["我们用拥有多少来衡量自己，结果变得无聊老套——所有人都穿一样的衣服，追同样虚幻的目标。","对治嫉妒最强的方法，不是赢过对方，而是随喜：真心为别人的好高兴，福德就在你四周等你拾取。","那个总觉得“不够好”的声音，是“自我”在作祟。它像个无家可归的人，拼命抓取，却始终安不下来。"],
+              close: ["你确定那个让你自卑的“标准”，真的是你的吗？还是别人塞给你、你又信以为真的？"] },
+            { id: "原生家庭与父母", keywords: ["父母","爸妈","妈妈","爸爸","原生家庭","亲情","孝顺","催婚","亲子","和解","愧疚","回家","代沟","重男轻女","母亲","父亲","养育","管我","控制我"],
+              open: ["先说一句可能让你不舒服的话：某人是你父母，并不自动意味着你们彼此相爱。","世界上一半的家庭痛苦，都来自一个没必要的期待——“他们就该懂我、就该爱我”。"],
+              points: ["把“父母必须爱我、我必须爱父母”当成天经地义，反而成了最深的伤口来源。先放下这个“应该”，关系才有呼吸的空间。","在只崇拜个人成功、不重家庭纽带的时代，成功的孩子忙着赚钱，孤单的却是父母——这值得每个人停下来想想。","我自己也从没对父母说过“我想你”。我懂那种说不出口——但懂了之后，至少别再用它来恨自己。"],
+              close: ["你是真的想和他们和解，还是只想让他们变成你心里那个“应该的样子”？"] },
+            { id: "手机与现代生活", keywords: ["手机","刷","上瘾","社交媒体","短视频","抖音","信息","无聊","空虚","分心","专注不了","停不下来","屏幕","网","熬夜","碎片","沉迷","成瘾","注意力"],
+              open: ["你一次次拿起手机，不是因为有什么非看不可——是那颗闲不下来的心，在害怕和自己独处。","你有没有发现：刷完之后，并没有更满足，只是更空了一点。"],
+              points: ["当你想看手机，就是那个被惯坏的、像顽童一样的心在号啕大哭。不必骂它，也不必满足它，只是看着，让那股冲动自己过去。","几乎所有的产品，从手机到那些App，都是被精心设计来刺激你的期待和恐惧、加深你的依赖的。看清这点，你就不那么容易被牵着走。","试试每天给自己三分钟，关掉一切，只是安静坐着，注意自己的呼吸、自己的脚趾。你会发现，原来你一直没真正和自己待过。"],
+              close: ["如果现在让你放下手机、安静坐五分钟，你心里升起的是轻松，还是不安？那个不安，才是真正值得看的东西。"] },
+            { id: "衰老与疾病", keywords: ["衰老","变老","老了","年龄","年纪","容貌焦虑","皱纹","生病","疾病","病","健康","身体","体检","死","怕老","中年","更年期","退化","虚弱"],
+              open: ["你怕的其实不是“老”这个字，是你只想要人生里你喜欢的那一半。","即使你是世界上最大公司的CEO，也绕不过衰老、疾病和死亡——在这件事上，我们都一样脆弱。"],
+              points: ["衰老和疾病不是故障，是无常本来的样子。能接受得到，也要练习接受失去，才算欣赏完整的循环。","身体像草上的露珠，取决于太多我们掌控不了的条件。看清这个脆弱，反而让你更珍惜还能呼吸的此刻。","积攒一切准备永远健康、永远活着，是没有意义的——那不会发生。真正的准备，是认真地活好今天。"],
+              close: ["如果身体随时可能离开你，你还要把今天，浪费在懊恼它不够完美上吗？"] },
+            { id: "孩子与教育", keywords: ["孩子","教育","养娃","育儿","小孩","鸡娃","虎妈","虎爸","学习","成绩","升学","管教","叛逆","亲子教育","培养","期望","儿子","女儿","幼儿"],
+              open: ["先问一句：你是在培养一个人，还是在打造一个让你满意的“作品”？","虎妈虎爸我不反对，但有件事你得想清楚——你准备好一辈子做老虎了吗？"],
+              points: ["很多时候，孩子成了我们的财产和玩具，这是很自私的。没有人喜欢被当成财产对待，孩子也一样。","只做二十年老虎，然后把孩子丢进他们完全不适应的世界，这没有意义。要么别逼，要么陪到底。","比起成绩，更该教给孩子的是善良、远见、同情、勇气和优雅——教育的目的是让一个人更完整，不是更有用。"],
+              close: ["你希望孩子将来成为一个“成功的人”，还是一个“不害怕做自己的人”？这两者，你想清楚要哪个了吗？"] },
+            { id: "别离与思念", deep: true, keywords: ["别离","离别","分离","失去","离开","走了","去世","死别","思念","想念","怀念","放不下他","放不下她","舍不得","分开","离世","没了","告别","回不来","阴阳两隔"],
+              flow: [
+                "我不打算用一句轻飘飘的“看开点”来打发你——这种时候，所有漂亮话都是残忍的。先承认：它就是很痛。痛，是因为你真的爱过。这一点，不必羞愧，也不必急着跨过去。\n\n但等你缓过一口气，我想请你看清痛的来处。我们怕别离，是因为只想要无常里自己喜欢的那一半：要相聚，不要分离。可这两半本是同一件事，没有相遇，哪来的别离。\n\n你不是输给了命运，你只是终于撞上了所有人都要面对的真相。\n\n我也不骗你说这痛会消失——它不会。但它会慢慢变形：从一开始那种把你整个人撕开的剧痛，慢慢沉成一种你扛得动的重量。不是忘记，是你长出了能带着它走路的力气。\n\n等你愿意的时候——不是现在也没关系——我们再谈，怎么带着这份爱，继续走下去。",
+                "你说放不下那个离开的人。但你有没有分清，你放不下的，是他，还是“他本该还在”这个念头？\n\n这两者很不一样。前者是爱，爱不必放下；后者是抗拒现实，是你的心还停在他没走的那一刻，跟已经发生的事实较劲。日夜折磨你的，多半是后者。\n\n他真实地来过、爱过、影响过你，这些谁也夺不走。但“他不该走”——这是你跟无常签的一份注定败诉的合同。\n\n分清了，你才不会把全部的力气，都耗在跟一件已经定局的事死磕上。那股劲，本可以用来好好怀念他，而不是日夜恨命运。\n\n你能不能，把怀念他，和抗议他离开，这两件事，先分开？",
+                "思念本身没有错，别把它当成需要治好的病。陷在回忆里，是人最深的人性之一，连我也有许多回忆，会被一点小事忽然唤起，比如某种气味。能思念，说明你还活着、还有心。\n\n但有一道分界线你要看清：怀念一个人，和被怀念困住，是两回事。前者让你心里有他；后者让你停在过去，没法好好活在现在。\n\n让回忆像潮水，来了就来，退了就退，而不是每一次都纵身扑进去淹没自己。\n\n你不必为了好好活下去，就逼自己删掉他。恰恰相反——真正走出来的人，不是忘了那个人，是终于能笑着提起他。眼泪和微笑可以同时在，这才是思念成熟的样子。\n\n你能不能，既深深地记得他，又不让这份记得，替你过完剩下的人生？",
+                "我说一句你现在可能还接不住、但迟早用得上的话：正是因为会失去，你和他在一起的每一刻，才那么贵。\n\n如果人永不分离，相聚就成了理所当然，没人会珍惜。恰恰是别离，给了所有相遇重量。你此刻的痛有多深，反过来说，就证明你曾经拥有过多么真的东西——这不是安慰，是事实。\n\n所以别让这场失去，把过去也一起否定掉。他来过，本身就已经是恩典，不因结局而作废。\n\n更进一步说：他给过你的那些东西——某种看世界的眼光、某句他常说的话、你因他而长出的某部分性格——并没有随他一起走。它们已经长进了你身上。从这个意义上，他从未完全离开，他活在被他改变过的你里面。\n\n你是想记住“他走了”，还是想记住“他曾经那么真实地，来过”？",
+                "聚和散，其实不全在你手里。因缘到了，人就相逢；因缘尽了，你再用力，也留不住。这不是宿命论，是诚实——承认有些事超出你的掌控，你才能停止用“是不是我没做够”来折磨自己。\n\n很多丧失之后的痛，混着一股隐秘的自责：要是我当时……。但你要知道，你不是万能的导演，你做不到的，本来就不在你的剧本里。\n\n放下那份自责，不是原谅别人，是先放过你自己。\n\n而且你要明白：你记忆里那个“当时”，是被痛苦反复改写过的。你一遍遍重播，每一遍都把自己摆在最该被责怪的位置——可那不是真相，那是悲伤戴上的有色眼镜。真实的你，在当时已经用尽了你当时所能。\n\n你心里那句“要是当时……”，是真的有用，还是只是你惩罚自己的一种方式？"]
+            }
+        ];
+
+        /* ============ 知识库：双语金句（含来源，公开片段+提炼） ============ */
+        const QUOTES = [
+            { text: "我们通常只欣赏无常循环的一半：能接受出生却不接受死亡，能接受得到却不接受失去。真正的解脱，来自欣赏整个循环，而不去抓取那些我们觉得顺意的部分。", en: "We usually appreciate only half the cycle of impermanence... True liberation comes from appreciating the whole cycle and not grasping onto those things we find agreeable.", source: "公开金句合集（《正见》主题）", topics: ["无常","失去","改变","死亡"] },
+            { text: "对死亡最好的准备，就是过上充实的生活。", source: "公开转述语录", topics: ["死亡","无常","当下"] },
+            { text: "问题并不在于财富和世俗的成功本身，那些从来都不是问题，对财富和成功的贪婪与执着才是问题。", source: "公开访谈（“钱从来不是问题”）", topics: ["执着","财富","金钱","成功","欲望"] },
+            { text: "所谓出离，就是不再执着过去执着的事物。检验方法：过去能轻易激怒你、对你很重要的一件事，现在是否已不再牵动你？", source: "公开开示转述", topics: ["出离","执着","放下"] },
+            { text: "修行不是放下一切，而是要学会和一切玩耍。名声、赞美、批评、得失……都像玩具一样，玩具不该控制你。", source: "公开语录（“玩具”比喻）", topics: ["执着","放下","修行","得失"] },
+            { text: "情绪不是你，感受不是你，念头不是你。觉察到这一点，痛苦就开始瓦解。", source: "公开语录", topics: ["情绪","自我","觉察","痛苦","焦虑"] },
+            { text: "当你看见河，你已在河之外；当你看见山，你已在山之外；当你能看见自己的任何情绪，你就已在情绪之外。", source: "公开语录", topics: ["情绪","觉察","自我"] },
+            { text: "在潜意识里，我们被一种期待诱惑：以为终有一天会到达“从此幸福快乐”。仿佛至今的一生都只是彩排——于是我们不为今天而活。", en: "...It's as if everything we've experienced was a dress rehearsal... so we do not live for today.", source: "公开金句合集", topics: ["自我","期待","当下","焦虑","快乐"] },
+            { text: "如果没有盲目的希望，也就没有失望。如果一个人知道一切都是无常的，他就不会抓取；不抓取，就能够活得淋漓尽致。", en: "If there is no blind hope, there is also no disappointment...", source: "公开金句合集", topics: ["无常","期待","执着","失望"] },
+            { text: "道本身最终也必须被舍弃，就像到达彼岸后要舍弃船。在彻底证悟之时，你必须放下“佛教”。很多佛教徒非常执着于“佛教”这艘船，却不知佛陀从来不是佛教徒。", source: "《人间是剧场》", topics: ["道","上师","佛教","执着","修行"] },
+            { text: "如果一家咖啡馆能提醒你无常、苦和无我，那么这家咖啡馆就是寺院。", source: "公开语录", topics: ["修行","现代生活","无常","日常"] },
+            { text: "真正的强大不是对抗，而是允许发生。允许遗憾、愚蠢、丑恶、虚伪，允许付出没有回报。当你允许这一切之后，你会逐渐变成一个柔软、放松、舒展的人。", source: "公开语录", topics: ["接纳","痛苦","情绪","关系","放下"] },
+            { text: "如果你能彻底地明白某一种现象的没有本质，那就能治好一切痛苦——这就是所谓的“一药治百病”。", source: "《佛教的见地与修道》", topics: ["空性","见地","痛苦"] },
+            { text: "佛法教授并非设计来让你开心的，相反，它是特别用来暴露你的缺失、让你感到极为糟糕的。", source: "《不是为了快乐》", topics: ["修行","快乐","佛法"] },
+            { text: "误认为修持佛法会让自己平静、能过无忧无虑的生活，这是个极大的误解。佛法并非一种治疗；相反，它是专门设计用来翻转你的生命的。", source: "《不是为了快乐》", topics: ["修行","快乐","佛法"] },
+            { text: "只有那些我执与烦恼大如须弥山的人，才能生起证悟之心。正如所说：“一切烦恼，为如来种。”", source: "《不是为了快乐》第十四章", topics: ["情绪","烦恼","修行","以情绪为道"] },
+            { text: "我们所谓的“幸福”，永远是部分的痛苦——有点像挤青春痘带来的满足：快乐只依赖于短暂痛苦的解除，一旦挤完，痛苦就回来。", source: "《八万四千问》", topics: ["快乐","痛苦","幸福"] },
+            { text: "即使在不完美的轮回中，一个人还是可以通过生起满足感而拼凑一点幸福。满足的时候几乎不会厌倦；只有太贪心时，才几乎不可能感到兴奋。", source: "《八万四千问》", topics: ["快乐","满足","欲望","幸福"] },
+            { text: "你感到孤单和无聊，所以想要一个伴侣；而你也是自私的，所以想要独立。具有讽刺意味的是，不幸有时有助于婚姻的稳定。", source: "《八万四千问》", topics: ["关系","爱情","婚姻","孤独"] },
+            { text: "享乐与欲望不是一回事。你可以仅仅通过欣赏而享受一件事物，而并不想占有它——也就是不沉迷于它。你不必放弃所有享受；但所有的欲望，最终都需要抛弃。", source: "《八万四千问》", topics: ["欲望","享乐","爱情","执着"] },
+            { text: "即使你是世界上最大公司的CEO，也不意味着你能绕过死亡、衰老和疾病。在生老病死面前，你和其他人一样脆弱。", source: "《八万四千问》", topics: ["死亡","成功","无常"] },
+            { text: "积攒钱财准备永远活着真的没有意义，那不会发生。我们所有人都认为真正的生活几年后才会开始。", source: "《八万四千问》", topics: ["死亡","财富","当下","无常"] },
+            { text: "就算没有人看见，你也应该善良，因为总有一天，你也会在没有人的地方需要帮助。", source: "公开语录", topics: ["善良","利他","慈悲"] },
+            { text: "精通佛法最好的征象就是变得谦逊，修行好最好的征象是没什么烦恼——不会激动或愤怒。", source: "《八万四千问》", topics: ["修行","谦逊","烦恼","愤怒"] },
+            { text: "佛教是面对现实，而不是逃避现实。很少有人能够从我们误认为是现实的那种幻觉中逃离。", source: "公开访谈（网易转载）", topics: ["现实","幻觉","空性","修行"] },
+            { text: "朝圣的重点并非去参访圣者的诞生地，或凝视发生过大事的场所；我们朝圣，是为了帮自己记住佛陀所有的教法。重点在动机，不在到达。", source: "《朝圣》第二章", topics: ["朝圣","正念","修行","动机"] },
+            { text: "在物质世界里，“富有”指的是你拥有很多、很有钱；而灵性世界把“富有”定义为全然知足——当你不再用“自己缺什么”的想象折磨自心时，你就富有了。", source: "《朝圣》", topics: ["知足","财富","欲望","执着"] },
+            { text: "混乱与不完美本身是一种加持，因为它强迫你睁开双眼，去看见生与死同时逼现的真相，而不是躲进无菌、舒适、被麻醉的体验里。", source: "《朝圣》", topics: ["接纳","无常","现实","朝圣"] },
+            { text: "为了发掘实相，最重要的骨干就是正念；任何能提醒你保持正念的事物——圣地、佛像、经咒，甚至一杯茶——都值得善用。", source: "《朝圣》", topics: ["正念","修行","当下"] },
+            { text: "是芝麻籽，就含有芝麻油；同样的，如果你是有情众生，你就具有佛陀的证悟功德。染污再厚，也都是暂时的、可以去除的。", source: "《朝圣》第二章", topics: ["佛性","潜能","修行","空性"] },
+            { text: "相信“籽里有油”，这就是正见，正见不会让你失望；而凿一块石头却指望榨出油，只会导致失望。", source: "《朝圣》第二章", topics: ["正见","佛性","期待","修行"] },
+            { text: "佛陀从不把教法教条化，也从不强迫任何人遵从；他要你自己去分析、去验证——若听起来没有道理，你根本就不该去尝试。", source: "《朝圣》第二章", topics: ["修行","佛法","怀疑","见地"] },
+            { text: "对朝圣者最重要的，不是佛陀肉体的诞生，而是真诚的出离心在悉达多心中生起——那种勇气、那种无畏、那种胆识。", source: "《朝圣》第三章", topics: ["出离","勇气","修行"] },
+            { text: "净化与积聚并非两件不同的事，它们同时发生——就像打扫房子时，你不只清除了脏乱，也让它变得更漂亮。", source: "《朝圣》第八章", topics: ["修行","净化","福德","当下"] },
+            { text: "福德与智慧就像鸟之双翼，缺一不可。智慧，简单说就是没有偏见的感知——一颗不被自己觉受欺瞒的心。", source: "《朝圣》第八章", topics: ["修行","智慧","福德","见地"] },
+            { text: "一片花瓣供佛，回向众生，就胜过炫耀式的奢华供养。切勿以短视、自私、世俗的原因来行善——那会完全违背灵性之道。", source: "《朝圣》第八章", topics: ["供养","发心","福德","利他"] },
+            { text: "真正的修持，不是把外在的圣地消毒干净，而是清除你自己内心的染污。重要的从来不是那块地方，是你的心。", source: "《朝圣》第九章", topics: ["修行","正念","净化","当下"] },
+            { text: "随喜他人的成功，也许是积聚福德最简单的方式——福德就在你四周等你拾取。它正是对治嫉妒这个最荒谬、最可悲的情绪的最强方法。", source: "《朝圣》第十一章", topics: ["随喜","嫉妒","情绪","利他","福德"] },
+            { text: "我们以大礼拜来摧毁最顽强的外壳——骄慢。而骄慢的本质，其实是缺乏安全感，它还会制造许多层面的伪善。", source: "《朝圣》第十一章", topics: ["骄慢","自我","情绪","修行"] },
+            { text: "悭吝是一种与贫穷完全无关的贫乏心态——许多物质富足的人，依然总觉得缺少什么。对治它的方法，是给予。", source: "《朝圣》第十一章", topics: ["悭吝","知足","财富","执着","利他"] },
+            { text: "如果一个人接受下列四项真理，他就是佛教徒：一切和合事物皆无常、一切情绪皆苦、一切事物皆无自性、涅槃超越概念。", source: "《正见：佛陀的证悟》", topics: ["四法印","见地","修行","佛教","无常"] },
+            { text: "我们应该崇拜的不是佛陀这个人，而是他所教导的智慧。许多人误以为佛陀是佛教的“神”，其实佛陀本人说过，不要崇拜个人。", source: "《正见：佛陀的证悟》", topics: ["佛教","修行","上师","见地"] },
+            { text: "情人眼里出西施——同样一个人，有人爱得发狂，有人完全无感。可见我们所执的“美”与“值得”，从来不是对象本身固有的。", source: "《正见：佛陀的证悟》", topics: ["执着","爱情","空性","情绪"] },
+            { text: "蛋已煮熟，你无法把它变回生的。因缘一旦聚合，结果就已注定——明白这一点，你会对发生的一切多一分释然。", source: "《正见：佛陀的证悟》", topics: ["无常","接纳","因果","执着"] },
+            { text: "无常并不是坏消息。正因为一切都会变，痛苦才有可能结束，僵局才有可能松动，证悟才有可能发生。", source: "《正见：佛陀的证悟》", topics: ["无常","希望","修行","改变"] },
+            { text: "我们以为自己不再演戏，其实只是换了个角色——从“凡夫”这场戏，换到了“佛教徒”那场戏。当你把所有的戏都扔掉，才是一场没有戏的好戏。", source: "《正见：佛陀的证悟》·序", topics: ["自我","修行","执着","空性"] },
+            { text: "在生命的这场幻像里，有许多变化、很多死亡，也有很多新生。甚至我自己也一定改变过——此生，以及我以往的生生世世。", source: "《皓月飞萤：宗萨自传》", topics: ["无常","自我","幻觉","死亡"] },
+            { text: "那些住在山洞里、知足的隐修者，无法理解人们为什么要如此操心挖地基、立房梁和盖屋顶。", source: "《皓月飞萤：宗萨自传》", topics: ["知足","执着","现代生活","出离"] },
+
+            /* —— 扩充：四本书原文精提（片段引用） —— */
+            { text: "任何我们认为会让自己快乐的事物，若不是在痛苦边缘摇晃，就是瞬间痛苦的因。", source: "《朝圣》第五章", topics: ["痛苦","快乐","执着"] },
+            { text: "痛苦并非从外在降临到我们身上，而是我们自己情绪反应的产物。", source: "《朝圣》第五章", topics: ["痛苦","情绪","愤怒"] },
+            { text: "不管你拥有多少，死亡可以在任何时刻打击你，而且它不受贿赂。", source: "《朝圣》第六章", topics: ["死亡","无常","成功","财富"] },
+            { text: "怀疑越严重，我们就越可能困在连续的自我谴责状态中。", source: "《朝圣》第十一章", topics: ["恐惧","情绪","自我","焦虑"] },
+            { text: "若不接受真谛，你就像建造沙堆城堡的孩童，当城堡崩塌，必会哭泣。", source: "《朝圣》第十章", topics: ["无常","执着","接纳"] },
+            { text: "当你发脾气时，愿你对自己的行为感到惭愧并获得领悟；当你感到沮丧时，愿那沮丧成为你了悟真谛之因。", source: "《朝圣》第十五章", topics: ["愤怒","情绪","修行"] },
+            { text: "即使是一个假造的善念，也好过什么都没有，而且造作的善念终究会引导到真正的善念。", source: "《朝圣》第十四章", topics: ["慈悲","利他","修行"] },
+            { text: "从iPhone到一件内衣，世上几乎所有产品都是设计来强化和刺激我们的期待、恐惧与情绪反应，同时增强我们的依赖性。", source: "《朝圣》第八章", topics: ["现代生活","欲望","执着"] },
+            { text: "现代世界的孩子大多被过度保护与宠爱，封闭于自我放纵的蚕茧里，以致对真实世界所知甚少。", source: "《朝圣》第七章", topics: ["孩子","教育","父母","现代生活"] },
+            { text: "我们最欲求的东西，最后往往正好摧毁我们——为了一点短暂的喜悦，掉进几乎立刻变成恐怖故事的爱情。", source: "《朝圣》第八章", topics: ["欲望","爱情","执着","痛苦"] },
+
+            { text: "最终我意识到，能够哭泣是一种天赋。", source: "《皓月飞萤：宗萨自传》", topics: ["情绪","接纳","脆弱"] },
+            { text: "世界各地许多人共有的业，是把宝贵的时间浪费在网上，长时间盯着手机屏幕直到被辐射晒黑。", source: "《皓月飞萤：宗萨自传》", topics: ["现代生活","手机","执着"] },
+            { text: "某人是你的父亲或母亲，并不意味着你爱他们、或他们爱你；世界上半数的家庭问题，都来自这种毫无必要的期待。", source: "《皓月飞萤：宗萨自传》", topics: ["父母","家庭","关系","期待"] },
+            { text: "我从没对父母说过“我想你”，即便再给一次机会我也不会说——在我们的文化里，这样的话语是不合时宜的。", source: "《皓月飞萤：宗萨自传》", topics: ["父母","家庭","情绪"] },
+            { text: "我遇见过一些完全信仰理性和逻辑、自认像鹰一般犀利的人，多年后即将死亡时，却充满了恐惧和绝望。", source: "《皓月飞萤：宗萨自传》", topics: ["死亡","恐惧","见地"] },
+            { text: "这心识像一只被驯化的猴子，学会了主人教的所有把戏，却完全不知如何摘下那条拴住自己的绳子。", source: "《皓月飞萤：宗萨自传》", topics: ["自我","修行","情绪"] },
+            { text: "如果你自己虚伪，就会认为别人也虚伪；你变得骄傲而做作，每件事都成了一场表演，即便对你自己也是。", source: "《皓月飞萤：宗萨自传》", topics: ["骄慢","自我","现代生活"] },
+            { text: "越是禁忌的事物越是想要得到，这大概是人类心识的习性——禁果从来都是最甜的。", source: "《皓月飞萤：宗萨自传》", topics: ["欲望","执着"] },
+
+            { text: "我们在物质上越富有，因无法让一切尽在掌握而带来的不安全感和不确定性，就越强烈而明显。", source: "《八万四千问》", topics: ["财富","现代生活","恐惧","焦虑"] },
+            { text: "一个有无常观的人每次品茶，都好像是品人生的最后一杯茶，因而会倍加珍惜。", source: "《八万四千问》", topics: ["无常","知足","当下"] },
+            { text: "我们仍怀有强烈的幻想，认为有一天可以在一个没有问题的地方安顿下来；可解决了旧问题，新问题又出现了。", source: "《八万四千问》", topics: ["痛苦","执着","焦虑","快乐"] },
+            { text: "把伴侣和你们的关系都看成无常的，实际上反而可能导致一段更加和谐、珍贵的关系。", source: "《八万四千问》", topics: ["关系","无常","爱情","婚姻"] },
+            { text: "在崇拜个体权利而非家庭纽带的文化里，孝道没有空间；成功的孩子忙着赚钱，可怜的母亲却很孤单。", source: "《八万四千问》", topics: ["家庭","父母","孤独","成功"] },
+            { text: "如果你觉得需要有朋友的爱才能感到幸福，这意味着你还在聚集业债。", source: "《八万四千问》", topics: ["关系","执着","孤独","幸福"] },
+            { text: "何时火会熄灭？当木头完全耗尽时；但由于不安全感，我们总倾向于添加更多木头。", source: "《八万四千问》", topics: ["欲望","修行","执着"] },
+            { text: "当你想看手机时，就是你那被惯坏的、顽童般的心在号啕大哭；不要在乎它，继续看着你的脚趾。", source: "《八万四千问》", topics: ["手机","正念","现代生活","自我"] },
+            { text: "自我总是潜伏在某个角落。你对它温和，它就被惯坏；它掌握了你所有的技巧，你却只知道它很少几个把戏。", source: "《八万四千问》", topics: ["自我","情绪","修行"] },
+            { text: "即使你是世界上最大公司的CEO，也并不意味着你能绕过或超越死亡、衰老和疾病。", source: "《八万四千问》", topics: ["死亡","衰老","疾病","成功"] },
+            { text: "没有哪个人永远幸福生活着的记录，那只存在于电影里；可我们不断认为永恒的幸福是存在的，还有比这更严重的幻觉吗？", source: "《八万四千问》", topics: ["快乐","幸福","执着","现实"] },
+            { text: "我们以拥有多少来衡量自己，完全忘了自己真正是谁；结果变得无聊老套，所有人都穿一样的衣服，怀着同样虚幻的目标。", source: "《八万四千问》", topics: ["现代生活","自我","攀比","成功"] },
+            { text: "我们努力工作十一个月，只为去某个地方休息一个月；从某个角度看，我们做的很多事真的很荒谬。", source: "《八万四千问》", topics: ["工作","现代生活","内耗"] },
+            { text: "“自我”几乎像一个无家可归的人，没有真正的家，却拒绝相信自己无家可归——本质上，它一直是孤独的。", source: "《八万四千问》", topics: ["自我","孤独","空性"] },
+            { text: "我们永远达不到自己认为应该达到的标准，因为贪欲太多；而这些衡量标准，只不过如同水中的涟漪。", source: "《八万四千问》", topics: ["现代生活","自我","攀比","焦虑"] },
+            { text: "很多时候，孩子是我们的财产和玩具，这是非常自私的；而没有人喜欢被当成财产一样地对待。", source: "《八万四千问》", topics: ["孩子","父母","家庭","教育"] },
+            { text: "学佛者的我执有时更严重，那意味着佛法只进入了头脑，没有进入心灵——佛法成了自我的另一个工具。", source: "《八万四千问》", topics: ["自我","修行","骄慢"] },
+            { text: "虎爸虎妈必须准备好自始至终都做老虎；只做二十年老虎，然后把孩子留在它们都不适应的荒漠里，这样没有意义。", source: "《八万四千问》", topics: ["孩子","教育","父母"] },
+            { text: "我们之所以惧怕死亡，最大原因之一就是它的不确定性——这是一个我们今生从未去过的地方。", source: "《八万四千问》", topics: ["死亡","恐惧","无常"] },
+            { text: "烦恼的本质恰是智慧；误解本质时像水结成了冰，固化成恒常独立的“我”，一旦误解消失，冰就融化成水。", source: "《八万四千问》", topics: ["情绪","见地","空性","愤怒"] },
+
+            /* —— 扩充：爱情 · 关系 · 别离 · 思念 —— */
+            { text: "不要太执着于和一个伴侣永远幸福地在一起。对这个理想愿望的执着，经常会造成很多痛苦。", source: "《八万四千问》", topics: ["执着","痛苦","婚姻","爱情","别离"] },
+            { text: "婚姻本应对解除孤独有所助益，却也带来痛苦。我们所谓的“幸福”真的很不完美，并且很快就会发展为痛苦。", source: "《八万四千问》", topics: ["婚姻","孤独","痛苦","关系"] },
+            { text: "没有什么会成功，尤其是在关系上，当两个我执相遇时；当两种不安全感相遇，更是没有任何成功的可能。", source: "《八万四千问》", topics: ["关系","自我","执着","爱情"] },
+            { text: "恋爱很有欺骗性。当你爱上一个特定的人，你甚至不会注意他吃饭时咀嚼的声音——那种声音平时可能让你厌烦得要死。", source: "《八万四千问》", topics: ["爱情","自我","执着"] },
+            { text: "在追求独立的同时寻找一位终生伴侣，本身就有点矛盾；而当代世界的一切，几乎都被设计成让我们彼此疏离。", source: "《八万四千问》", topics: ["关系","孤独","婚姻","爱情"] },
+            { text: "作为一个正常人，你会感到孤独。身边环绕着很多人，并不意味着你永远不会感到孤独。", source: "《八万四千问》", topics: ["孤独","接纳","关系"] },
+            { text: "当业风以某种方式吹起，人们就相聚；有时无论你做什么努力，这都难以改变。", source: "《八万四千问》", topics: ["无常","别离","接纳","关系"] },
+            { text: "轮回本质上是有缺陷的：为了让一些事情看上去行得通，某些其他的事情就进行不下去。", source: "《八万四千问》", topics: ["痛苦","无常","接纳","别离"] },
+            { text: "在你几乎失去一切的那一刻，你的家人、你的房子、你所爱的人，会比任何其他时刻对你都更有意义。死亡可以在任何时刻打击你，而且它不受贿赂。", source: "《朝圣》第六章", topics: ["失去","死亡","无常","别离","珍惜"] },
+            { text: "堆砌的终将坍塌，聚集的终将瓦解，出生的终将死亡。但人们并不会因此就走出对回忆的执着。", source: "《皓月飞萤：宗萨自传》", topics: ["无常","死亡","执着","思念","别离"] },
+            { text: "我有很多回忆，有些永远地消失了，有些还躺在记忆深处，只待被某些单纯的缘由唤醒，比如香菜的味道。", source: "《皓月飞萤：宗萨自传》", topics: ["思念","无常","执着","别离"] },
+            { text: "对证悟者来说没有回忆这回事，因为过去并不存在；过去、现在和未来，只对像我们这样的人才有意义。", source: "《皓月飞萤：宗萨自传》", topics: ["思念","执着","空性","别离"] }
+        ];
+
+        /* 主题 → 取句标签映射 */
+        const TOPIC_QUOTE_TAGS = {
+            "焦虑与当下": ["焦虑","情绪","自我","当下"],
+            "执着与放下": ["执着","放下","出离"],
+            "无常与变化": ["无常","失去","死亡","改变"],
+            "情绪与自我": ["情绪","觉察","痛苦","接纳","嫉妒","随喜","骄慢"],
+            "快乐与意义": ["快乐","幸福","满足","欲望"],
+            "关系与爱": ["关系","爱情","婚姻","孤独"],
+            "修行与佛法": ["修行","佛法","道","上师","佛教","福德","净化"],
+            "空性与见地": ["空性","见地","痛苦","现实"],
+            "朝圣·正念·佛性": ["朝圣","正念","佛性","潜能","知足","动机","随喜","福德"],
+            "工作与内耗": ["工作","成功","现代生活","内耗","执着","知足"],
+            "自我价值与攀比": ["攀比","自我","嫉妒","随喜","现代生活","知足"],
+            "原生家庭与父母": ["父母","家庭","关系","期待","孤独"],
+            "手机与现代生活": ["手机","现代生活","正念","欲望","自我"],
+            "衰老与疾病": ["衰老","疾病","死亡","无常","成功"],
+            "孩子与教育": ["孩子","教育","父母","家庭"],
+            "别离与思念": ["别离","思念","失去","无常","死亡","接纳","执着","珍惜"]
+        };
+
+        /* ============ 《八万四千问》问答库（全书问答对，问答体优先命中） ============ */
+        /* 每条：q 为书中原问题，a 为仁波切答复的可引用摘录；匹配按问题文本的二字词重合度打分 */
+        const QA_BOOK = [
+  { q: "其实只要活着，就行了吗？", match: "其实只要活着就行了是吗只要活着就够了吗活着就好认命了活着就行人活着到底为了什么活着没什么追求", a: "你说“只要活着就够了”，听上去像放下，其实更像疲惫之后的投降——你不是想通了，是累了，于是把人生的标准一路调到最低，低到只剩“别死就行”。我不忍心顺着你说“对，活着就好”。\n\n佛法从不教你认命。它说无常，不是要你躺平等天黑，而是提醒你：正因为一切都会过去，这口气、这一天才贵得离谱。把人生缩到“活着就行”，等于守着一座金矿，却只肯捡地上的碎石。\n\n但我也不是要你立刻去“追求”什么宏大目标——那又是另一个陷阱。我说的是：别用“活着就够了”这句话，提前给自己盖棺。先认认真真地活一个今天：好好吃一顿饭，好好和一个人说话，好好走一段路。意义不在远方，它就藏在你正不肯用心过的此刻里。\n\n我想问你：你说的“只要活着就行”，到底是真的安顿了，还是你只是不敢再对生活抱期待，怕又一次失望？" },
+  { q: "为什么我在这里？我是怎么成为现在的我的？为什么我对某些人和事物有强烈的好恶，而对其他的人和事物却漠不关心？为什么我是中国人而不是阿拉伯人，为什么我选择出生在北京而不是摩洛哥？为什么我甚至有“心”？总之，佛教怎么解释，为什么事物是现在这个样子？", a: "佛教认为，我们以这样的形态存在，事物以这样的形式呈现，是因为数以亿计的因和缘，每个因缘又有其自己数以亿计的因和缘。所以即便我们诞生在同样的家庭和环境中，也会有数以亿计不同的因和缘，使得一些人害怕蜘蛛，可把龙虾腿塞进嘴里时却没有任何不安；使得一些人看到鲜血就眩晕，却把生鱼片视为无上美味。但是有一个因我必须单独强调，那就是我们的心识。这是最大的一个因。" },
+  { q: "仁波切，有些相信万能力量的人对佛教中因果与缘起的概念持怀疑态度，您对此有何看法？", a: "对于相信存在一种万能力量的人来讲，万能力量本身就是因缘——虽然在究竟意义（胜义谛）上，那可能是他们相信的唯一的因缘。当然，在相对意义（世俗谛）上，我不认为他们的意思是，当煮蛋的时候，在煮蛋这件事中存在一个上帝或万能的力量，如果真是那样的话，只需要向上帝祈祷鸡蛋被煮熟就可以了，并不需要加水、点燃气，或者创造其他煮蛋的因和缘。" },
+  { q: "没有宗教信仰或者崇尚物质主义的人也不相信佛教中因果和缘起", a: "没有宗教信仰或者崇尚物质主义的人并不是不相信因缘，只是他们对于因缘的理解有限，因而只相信自己看得见摸得着的因缘。他们不能接受全部的因缘，那是小小的心识弄不懂、想象不到，也够不着的。换句话说，他们或许能理解经历了家庭悲剧的儿童为什么长大后会变得抑郁，但他们不会去想这个人最初为何选择出生在那样的家庭。" },
+  { q: "可否请仁波切解释一下缘起性空，以及佛教中空性的概念？", a: "不论你是否相信，完全彻底地理解因、缘和果就是理解空性。因为当你完全理解了因缘，就会认识到没有独立的、万能的、初始的因。把三四根木棍立在一起，顶上放块木板，这时如果再在木板上放只杯子，突然间那东西就成了桌子。如果你坐在上面，它就成了椅子，而桌子突然不复存在，正像它突然出现一般。" },
+  { q: "佛学中是怎么解释宇宙起源的？", a: "在非正式的对话中，通常我们能够讨论起源，也能够讨论终点。但是当你加上“宇宙的”、“最初的”、或“终极的”这类词语的那一刻，换句话说，当你想知道“究竟的起源”和“究竟的终结”那一刻，那么在佛学里，因为时间是相对的，所以没有“究竟的开始”和“究竟的结束”那样的事情。" },
+  { q: "用物质主义的方式来探索因缘会误导我们吗？", a: "绝大多数中国人并不是一点儿都不相信因缘，而是只相信自己能够明显感知的物质的因缘。所以他们相信，如果有很多钱，或者有个好丈夫，或者晋升为高官，你就会幸福。但事实并不总是这样。很多有钱人没有时间欣赏金盏花美丽的黄颜色；一个好丈夫可能有勃起障碍；一个有权有势的高官可能有具“壁橱里的骷髅”，日后将会回来缠扰他。" },
+  { q: "仁波切，虽然佛教正在中国兴盛发展，但我们好像已经丢失了自己的社会价值体系。事实上，现在中国内地最为严重的社会问题，可能就是没有任何真正的精神道路或信仰体系。", a: "事实上，如果中国人能够用心地保持文化传统的话，中国，和其他很多国家不同，是非常幸运的，因为她有着真正良好的价值基础。我过去对儒家思想持有少许谨慎态度，但现在我认为，儒家思想可以是很好的。例如，我认为在台湾看到的热忱、人道、善良和责任心应该归功于儒家。" },
+  { q: "仁波切，可能有这样一些朋友，他们人非常好，总是尽力帮助他人。但他们觉得不需要修学佛法，因为他们认为自己的行为已经与佛陀的教法一致。他们可以仅凭着自己善良的心，不修学佛法而得到解脱吗？", a: "做一个友好、善良、慈悲的人并帮助他人，的确是极好的。但这不是唯一的事，事实上，这并不是佛法究竟的目标。我们修行佛法不仅仅是为了成为一个好人，而是为了让自己得到解脱、了悟真理，然后使得其他人也能了悟真理。毕竟，很多慈悲善良的人不一定都是佛教徒。事实上，即使在动物中间，你也能见到善良、慈悲和关爱的行为。" },
+  { q: "有些朋友年轻、健康，有着稳定而幸福的家庭。对于他们来说，轮回", a: "不必在意那些不能想到出离的人。按理说我是教授出离心的人，但即便是我自己，也会忘记每一刻我都在老去，每一刻我都距离死亡更近。我的健康像是草上的露珠，取决于非常多的条件，而其中很多条件都不在我的掌控之中。许多人很难认识到轮回是苦，因为我们对于生活的投影总是透过希望的镜头来完成的。举个例子，即便我们正在遭受实实在在的痛苦，我们依然相信事情会得到改善。" },
+  { q: "有些朋友尊敬佛法，但是下不了决心皈依", a: "首先，害怕失掉自由是非常正常的。所有人都害怕。然而，具有讽刺意味的是，没有人真的知道怎样才能自由，怎样才能让他们自己得到解脱，无论是从一个受到狂热崇拜的精神导师那里，从祖先崇拜这种非常顽固地根植于文化的传统那里，从儒学、道家、佛教等宗教那里，还是从诸如共产主义、社会主义或者民主等政治信仰那里。我们最后总是会陷入到想要抓住些什么的圈套中。" },
+  { q: "有些朋友对现代科技有强烈的信心。谈到佛教的见地和理论时，他们总是问同样的问题——这些能用科学的方法来证明吗？仁波切可否谈谈佛教与科学的关系？", a: "有一点我们必须知道，当你说“被科学证明”，你总是在说一件有心智参与的事。当你说我们在证明，是有人在向另外的人的心智证明。无论我们研究的是什么，证明或者不证明总是发生在心智的范围内。所以，到头来，是你的心在决定什么是正确的或者不正确的。对于我来讲，宗教和科学同样是迷信。" },
+  { q: "有些朋友皈依很长时间了，但是却不太花时间学习和修行，就像生病的人拒绝服药。结果他们对佛法的理解较为局限，对三宝", a: "当然，如果你有时间、精力和资源来学习、修行佛法是非常好的。但是如果没有，那么哪怕只是皈依过一次，也是好的。并且，如果你没有抛弃或者放弃三宝，你的状况还是要比任何其他可能是富裕或者成功的普通人好很多。胜义谛：真理分为二谛：世俗谛（RelativeTruth）及胜义谛（UltimateTruth）。" },
+  { q: "轮回真的存在吗？", a: "是无明、行及其结果（根据十二缘起的教法）——每一个创造另外一个。作为结果，轮回以一种既有序又混乱的方式，生动多彩而又痛苦地存在着，仿佛触手可及，就像一场噩梦。事实上，轮回的存在是如此系统，以致我们甚至忘记了它是一个幻觉。轮回就是这样强有力地存在和运转着，所以这不是我们应该开玩笑的事情。" },
+  { q: "佛教中是如何定义“自我”的？", a: "佛教对“自我”的定义是一个假名安立的概念，在观待五蕴（色、受、想、行、识）之后，把五蕴短暂的聚合称为“自我”。虽然它是假名安立的，但任何人却都不应该掉以轻心，因为正如我前面所说，这个所谓的“自我”是如此完备而系统的假名安立，并且我们是这么习惯于它，以至于我们甚至已经忘记了它是假名安立的。它已然成为一种习性。" },
+  { q: "如果有来世，谁又是我的来世？来世的我还是现在的我吗？", a: "如果明天我来到你的门前，我们通常认为今天在这里的同一个我明天又来了。正像那样，在相对层面上，我们有所谓的来世。在来世，这个假名安立的自我来了，就像是第二天又来了一样。现在的“我”只是一个抽象的概念，不是具体的或者实质性的。然而，你真的不能说昨天的我和今天的我是一样的。如果他们全然相同，我们就被同样的“我”卡住无法动弹，就不会有变化，也不可能变化。" },
+  { q: "但是为什么今天的我记得昨天的我，而来世的我却不会记得前世的生活？", a: "如果发生了什么猛烈的事，比如天花板掉到你的头上，把你砸成了脑震荡，突然间你可能连自己是谁都不记得了，更不用说昨天或者十年以前发生的事情了。我们中大多数人不记得前世，是因为发生了某种比被天花板砸到还要可怕的事——某种叫做死亡的事，它所导致的震荡大到足以让意识和身体完全分开。" },
+  { q: "佛学中关于十二缘起的教授不是很好懂，也很难记住。仁波切可否用通俗一些的话开示轮回过程？", a: "十二缘起（梵文叫nidhanas），是非常重要同时也非常复杂的教授。它深奥而精妙地展示了因果是如何运转的——一个因如何产生果，然后这个果又如何变成另一个果的因。因果循环的持续就是我们所说的轮回，而因果循环的终止则叫做涅槃。所以十二缘起提供了非常重要的图解，让我们从根本原因上来着手处理我们所经历的痛苦与问题。" },
+  { q: "关于命运，佛教有什么样的观点？命运可以改变吗？", a: "命运是一个难以把握的词。如果把命运和因缘诠释成同样的意思，那么当然，佛教相信命运。但是在英文的普遍使用中，“命运”这个词似乎有“超越个人控制”以及“被一种超越人掌控的力量所事先决定”的含义。既是如此，命运当然就和因缘不同，也就不符合佛教的理解。" },
+  { q: "如果我们可以通过修行来改变所谓的“命运”，那佛教徒应该过一种怎样的生活？", a: "作为佛教徒，我们根本的、唯一的目标就是了知真理，我们所做的一切无非都是为了接近真理。但我们有种持续的无明的习性，它根深蒂固。很久之前，我们没有选择希求真理或者被真理吸引，而选择在不真实和幻觉中寻找舒适；所以现在，我们变得如此习惯于幻觉，以至于追求真理看上去痛苦、乏味而毫无益处。这就是为什么，圣人对众生的慈悲是如此深沉而伟大。" },
+  { q: "仁波切，现代科学是否正在改变因果规律？例如，按照佛教的说法，如果我们修行安忍，那么下一世可以变得美丽。如何理解现在做美容就可以改善自己的容貌？如何理解科学家可以通过改变基因而改变生物特征，在这里因果规律是如何起作用的？", a: "现在科学家能让鼻子大一些、嘴唇小一些、下颌尖一些，这个事实本身就是因果规律的一种作用。所以，假设玛丽莲梦露被认为是终极的美女，并且这样的美女会带来终极的快乐，那么可以说，我们今天有比五十年前更好的因缘，因为今天的整形外科医生更有能力让你看上去像玛丽莲梦露。另一方面，即使长得和玛丽莲梦露完全一样，也不能保证就会幸福。" },
+  { q: "有的人做了很多坏事，却依然生活得富有而快乐，如何理解这种现象？", a: "是有权力吗？希特勒拥有这么大的权力，却给他人、最终也给自己带来了这么多的痛苦，他真的成功吗？拥有这样的权力能叫活得好吗？如果你问晋美林巴，怎样看待这样的人生——一个非常富有的加州人，开着保时捷，住在价值数百万美元、位于马里布悬崖边、俯瞰大海的别墅里，可以整天冲浪、整晚派对？晋美林巴会认为，是非常不好的业让这个人像一个彻头彻尾的傻瓜般浪费宝贵的人生。" },
+  { q: "历史上，有不少人为了正义的事业——至少他们的发心是这样——上战场杀敌人，为此甚至舍生忘死，但是他们杀了很多人，会有什么样的果报？", a: "一个人的正义通常是另一个人的不正义。为正义、自由、平等或者少数群体的权利而起的争斗，虽然第一眼看上去值得钦佩、鼓舞人心，然而多半都有盲目的一面，并且是基于狭隘的视野。我们可能为了自己的村落、省份、民族或国家而战斗，但经常是以别人的损失为代价。如果有一个为了全世界正义的宏大视野，任何人都不会高兴。" },
+  { q: "但是正义、自由、和平、平等、少数群体的权利、孝道以及其他这样的价值值得我们追求吗？", a: "轮回本质上是不完美的——不仅是有些部分不完美，而是任何一个部分都不完美。严格来讲，从佛法的观点，即使像正义、自由、和平、平等、爱、家庭纽带、孝道等经常被颂扬的、传统意义上的道德价值观，也被认为是不完美的，因为本质上所有这些价值都由无明而来。" },
+  { q: "修行者如果追求人天乘", a: "有意义吗？仁波切能否阐释福报和解脱的关系？毫无疑问，佛法的究竟目标就是获得解脱。佛法的每一个技巧和方法，如果不能给你带来世间的幸福，起码也保证不会给你带来痛苦。大多数时候，我们甚至不知道幸福的定义。但是如果我们分析一下就会发现，广义来讲，幸福和控制有着如此之大的关系——当我们的生活在掌控之中，我们就认为自己是幸福的。" },
+  { q: "我们知道，业是通过自相续", a: "而传递到这一世的，也就是说，业是多世累积而来，并被阿赖耶识收藏和传递。然而我们的很多特质，如身体特征、个性，甚至思维习惯等都和遗传有关，这说明业也可以通过家族遗传而传递吗？佛陀说，他无法拭去他人的苦痛，也无法与他人分享自己的解脱，这完全由个人的努力决定。所以你无法从其他人那里继承、删除或者下载因缘（业）。" },
+  { q: "仁波切可否就共业进行开示？", a: "举例来说，共业就像是日本海啸的受害者们所共享的业。有的受害者并非来自福岛，在海啸发生的那个时辰，他们可能只是在那里访问，然后就被困住了，因为这些特定的来访者有着相似的业，和那个地区的常住居民一样，要经历由海啸带来的相同后果。同样，在海啸中，也有一些人不仅没有死亡，甚至连一点擦伤都没有，这是非常令人诧异的。" },
+  { q: "我们经常听到发愿的颂词中说“直到所有众生证悟”，这是可能的吗？是安慰我们吗？", a: "通常，我们将这样的措词用于宏大而深远的誓言，作为心灵的技巧性训练的一部分，以便让菩萨们生起无量的愿心和见地，从而产生不可思议的勇气。从最开始，一位菩萨就必须训练自己在宏大的规模上去思考，所以在大乘的祈祷文中，我们从未听说只为一个村子的众生证悟成佛的愿望，而是总会听到“愿所有的众生证悟成佛”。在更加微妙的层面上，我们说的“所有”是什么意思？" },
+  { q: "背负业债让我非常焦虑，我们如何知道自己的业债已经完全清净？", a: "当我们不再依赖于任何因与缘，我们就不再是业债的牺牲品。例如，如果你觉得需要有朋友的爱才能感到幸福，这意味着你还在聚集业债。如果我们还想得到表扬，如果我们还被批评困扰，如果我们被忽略时感到孤独，如果名望让我们激动兴奋，那么我们有意识无意识地总是在寻找安慰或者安全感。" },
+  { q: "我们必须修行到哪个阶段才能不再造业？", a: "当木头完全耗尽时。当木头越来越少，火也会越来越小。但是由于不安全感，我们会倾向于添加更多木头。随着你在修行路上日益进步，会日益努力不去添加木头。所以自然地，当火没有燃料，就会变得越来越小。无明（英Ignorance）：看待有情众生及外在器世界的错误方式，即认为器情世界为真实、独立、坚固和俱生的存在。" },
+  { q: "仁波切，您认为心理健康的定义应该是什么？我们是否都有一点这样或者那样的心理疾患？", a: "在心理学中，我想，心理健康与不健康有很大的区别。在佛教中，是对真理的理解和对真理的实证让你的心智健康。你对真理的理解越深、对真理的实证越高，你的心智就越健康。事实上，在佛教一个叫做大圆满的传统中，能够连心识也一起抖落、能够摆脱心识本身，才是健康的，因为心识在本质上不是健康的，是我们需要摆脱的。从这个角度来说，只要你还有二元分别的心，你就不是健康的。" },
+  { q: "仁波切，是什么让您认为心是可以被调伏的？修行的本质是什么？", a: "心可以被调伏，因为心能够被影响。这或许是我们能听到的最好的消息了。你可以用它做试验。例如，即使你很喜欢喝酒，只要足够努力去控制，总能做到一两个晚上不喝。实际上这证明了你可以逆心而行或者顺心而为，那意味着心是可被训练的、可被调伏的。心可以被调伏，因为心是个副产品——它是种复合的现象。" },
+  { q: "我们知道很多修心的方法。事实上，佛教中的每一个方法都是用来修心的。但是简单地说，我们能够应用的最实用的修心的方法是什么？", a: "有两种基本的方法。第一种方法的目的是让我们的心变得调柔，因为此刻我们的心是僵硬的，一点儿也不调柔。你可以说，此刻我们的心有它自己的主意，所以我们必须让心变得灵活和柔软。" },
+  { q: "如何做到这一点呢？", a: "你可能会想，让某种东西变得调伏柔顺，我们得在里面加些液体，以使它软化、变得容易弯曲。然而，和你想的不同，这里我们要做的是完全相反的事。我们必须学会专注，长时间地专注。这是让心调柔的关键。例如，你现在可以看着自己的脚趾——尝试看着它两分钟以上，并且真正地专注于它。你会意识到自己很难做到。你会变得烦躁不安。你会想要做点儿其他什么事，比如用微信聊天。" },
+  { q: "另外一种方法是什么呢？", a: "另外一种方法要复杂得多。它的目标不仅是要让心调柔，现在你还想要让心看见真相，但是你的心真的不想看见那个真相。所以为此，你需要所有的闻思和修行的训练。" },
+  { q: "仁波切，您可否告诉我们，为什么发愿这么重要？我们该怎样修行发愿呢？", a: "发愿的精神层面或者说心理层面的特质是渴望，这当然是人类最强大的习性之一。众生都有习性，事实上，习性是构成有情众生的决定性成分。很多这些习性，我们甚至不知道或者无法认出它们是习性，因为它们已经变成我们的现实——非常具体，好像它们是真的一样。就像早上喝咖啡的习惯，我们把它看成一个习惯。" },
+  { q: "一个已经证悟的人是什么样的？没有了二元分别的心识，他的生活会改变吗？", a: "无法描述。看上去他们甚至可能会比我们更像普通人，显现上他们可能会脾气极坏，或者极其挑剔，他们也可能像是患了疑病，总是在说自己生了病。我们无从知道。好吧，我们自己作为有二元分别的人，永远不能真正地了解一个了证悟的人有着怎样的生活。" },
+  { q: "仁波切，请问您见到过证悟了的人吗？有没有能作我们榜样的证悟了的人？", a: "我个人愿意相信我看到过证悟了的人，就是我的上师们。把他们看作证悟的人是我的修行。至于他们是否已经证悟，这甚至不是一个问题。我必须把他们看作证悟的人，这是我的修行。我强调这一点，因为所谓的榜样是非常主观的。佛陀被很多人看作是证悟的人，然而他的表兄及其追随者们并不认为佛陀是一个完美的榜样。我们如果认为某些人不是正确的榜样，那也只是我们自己的看法。" },
+  { q: "从佛教观点来看，什么是真正的好运？可否请仁波切就福报与运气进行开示？", a: "我从未理解幸运的定义是什么。一般的理解，运气像是没有由来的、随机发生的事情。佛教徒不相信这种运气。在佛教里，所谓的福德，是你可以创造也可以毁灭的。它不是随机而来的。当它来临时，可能表现得是随机的，那是因为你还不了解业的细微点。" },
+  { q: "闻思与修行的关系是什么？在学修的不同阶段，我们应该分别花多少比例的时间与精力在闻思与修行这两个方面？", a: "听闻佛法始终是非常重要的，特别是在刚开始的时候。即使开始修行以后，闻和思也还是重要的。一旦对于自己所选择的无论哪种修行之道具有完全的信心，那么或许闻思就有点儿浪费时间，那时你就应该专注于打坐和修行。" },
+  { q: "您对放生有何看法？", a: "通常我们认为，放生是善行，是有功德的。佛陀讲过两种功德，一种是有染的，另一种是无染的。无染的功德是通过对佛陀的虔敬心而积累的功德，特别是通过打坐，安住于当下，不去追逐过去的经验，也不期待未来；此外还有对空性的领略和闻思修，例如对《金刚经》的闻思修。事实上，最高的无染功德基本上是关于空性的思维与冥想。" },
+  { q: "学修佛法会不会影响到正常的家庭生活和工作？", a: "莫妮卡的工作是在最为时尚的男性俱乐部里做脱衣舞娘。作为一个舞女，她必须保持自己漂亮的容貌和性感的身材。这很有挑战性，因为这份工作要求她上夜班，就是人们社交以及男人们下班后到“那种地方”去的时候。她的工作量很大，每天晚上十点开始，平日里凌晨三四点才结束，周末会更晚。为了找份别的工作，莫妮卡曾经试过很多办法。" },
+  { q: "皈依佛教是逃避现实的一种方式吗？", a: "我们在这个物质世界里拥有的——观念、财产、朋友、家庭、关系，这些是现实吗？这些是永恒的吗？这些是确定的吗？从佛法的角度，它们不是。它们永远都在变化，而变化是不可避免的。虽然我们都向往并朝着某种恒常、确定的幸福努力，但那终究不会发生。它还没有在任何人身上发生过。在人类历史上，没有哪个人永远幸福生活着的记录。那只存在于电影里。" },
+  { q: "为了修行，我们是否必须放弃生活中所有的享受？", a: "是真正的享受吗？例如，我们过去喜爱沙做的城堡、小玩具车、芭比娃娃，但或许如今不再喜爱了。所以我们曾经喜爱过现在不再喜爱的，现在也喜爱着一些过去未曾喜爱的；同样，现在我们所喜爱的，或许将来不会再喜爱。我们也不知道，现在所喜爱的将来是否会给自己带来各种问题。比如，我们可能爱吃冰淇淋，但那对我们好吗？" },
+  { q: "所以看电视、电影、读小说是OK的吗？还是说这样是浪费时间？", a: "如果你登记了参加闭关或者强化学习的课程，那么是的，在此期间你可能不应该看电视或者读小说。但总的说来，如果你剥夺了自己做这些事情的权利，最终你可能会便秘——既是比喻也是字面意义那样。所以我不强调放弃这些，除非你想要成为苦行僧，但是我们中的大多数人没有能力这样做。佛陀告诉他的弟子们，佛法修行应该像是弹琴——弦不能太紧也不能太松。" },
+  { q: "佛教如何看待世俗的成就？佛教徒应以怎样的态度或方式来对待财富？", a: "问题并不在于财富或者世俗的成功本身，那些从来都不是问题，对财富和成功的贪婪与执着才是问题。如果你对财富和成功有很大执着，那么不管拥有多少，你总会认为还不够。执着的心识就是这样运转的。所以，佛教并不把金钱、权力、职位、好车、劳力士手表或者镶金的牙齿看作问题。事实上，如果你想把自己嘴里二十八颗牙全镶成金的，佛教也不反对。佛教反对的是对那些的执着。" },
+  { q: "我们应该发愿成为一位好的生意人吗？", a: "一段作为商人的职业生涯可以对世界有很大帮助。事实上，我认为在这个时代，如果我们能够创建一个好的商业社会，那可能是对世界最为关键的贡献之一。有人认为佛教是反对商业世界的，但事实并不是这样，完全不是。即使在佛经里，也有很多富裕的商人——例如给孤独长老——成为佛法非常重要的护持者和捐赠者。" },
+  { q: "一个人应该发愿成为政治家吗？如果是的话，该怎么做呢？", a: "就像刚才说到的商人一样，我认为政治家能够扮演非常重要的角色。不幸的是，人们一般对政治家有种负面的看法。当然最为不幸的是，在世界上的很多地方，政治家们做了不少坏事，理应得到这种不信赖。但是，有着良好动机和执行方式的政治确实可以是很有助益的。" },
+  { q: "在商界和政界，有时和人们共事很难。一个信仰佛教的商人可以解雇人吗？一个信仰佛教的政治家应该怎样去领导别人？应该严厉吗？应该怎样和很难相处的同事交往呢？", a: "身为佛教徒，并不意味着软弱和没有组织纪律。你可以装作生气，不管怎样，保持恰当的要求和底线，对别人总是有所助益的。所以如果你需要责备别人，甚至给予惩罚，还是应该去做。但重要的是，要思考并观察这些做法有多少是来自你的无明、贪心与盲目。" },
+  { q: "一个人应该成为音乐家、艺术家或者演员吗？", a: "和商界人士与政治家一样，正确的动机及其所触发的行为可以通过艺术为社会做出很多贡献。动机看上去可能是简单而世俗的，比如一个演员的愿望是让在舞台上看到他或者她的人都能体验到真诚的爱、慈悲、和平以及和谐，甚至看到真理本身；与此相似，一个音乐家也可以对于那些听到他或她音乐的人们抱有类似的愿望。" },
+  { q: "除了正确的动机和行为之外，对于商人、政治家、演员、音乐家以及其他人等，有没有一些具体的修持方法，例如念诵某个心咒？", a: "有很多好的修持方法。对于那些还不是佛教徒的人，我建议他们每天拿出一点时间，哪怕只是短短三分钟，真正地独处并安静地冥思。在此期间，应该关掉手机、不管邮件、不看电视、不读杂志，也不回应其他人的要求。所有那些日常的事情都不要去做，只是安静地坐在某处，并观察你的身体。你曾有意识地注意到自己有两条腿吗？" },
+  { q: "我们有时工作繁忙，且需要不断与许多世故的人交往，在这样的生活状态下，还能修行佛法吗？", a: "完成自己的日常工作而不被染污，就像莲花出淤泥而不染一样。实际上，莲花也让泥水变得更漂亮。我们中的一些人，由于某些原因，承担着与人交往的工作或者责任，为此需要穿着讲究，去奢华的餐馆，并去做些徒劳的事。修行者知道这一切都毫无意义，但还是会为了某种更高目的而去做这些事情，比如是为了利益他人，或者至少因为这就是你的工作。" },
+  { q: "皈依仪轨中有“不与外道为侣”的颂词，那么佛教徒应该如何对待外道，例如道家和儒家，或没有宗教信仰的朋友？", a: "当然，这段颂词并不意味着一个佛教徒不能和一个基督教徒、犹太教徒或者穆斯林教徒待在一起，或者以朋友之间的方式出去喝酒或者喝咖啡。这些都是可以的。皈依戒里这项禁令的意思是，你不应该有这样一个在精神上会影响你的精神伴侣。这是因为有的宗教所信仰与宣讲的与佛教大相径庭。例如，佛教徒相信因缘，而基督教徒、犹太教徒和穆斯林则相信有一个万能的造物主。" },
+  { q: "是否必须要到寺院里出家，成为僧侣才能修学佛法？什么条件和情况下一个人应该彻底出离？什么条件和情况下可以在家修学？", a: "有的人认为，我们需要出离一切，到森林、山洞里，或者成为僧人，才能真正完美地修学佛法。这么想真的是局限了佛法。因为佛陀是那么地全知全能，他所教授的路径无限丰富，处于任何境况中的任何人都能找到合适的方式，无论是士兵、商人、国王、皇后，还是其他任何身份。认识到这一点是非常重要的。出离家庭生活只是八万四千法门中的一种。" },
+  { q: "佛教认为烦恼的本质是什么？", a: "传统观念上，烦恼是一个基于错误感知或错误理解之上的心理因素——基本上就是，看到无常的事物却视之为永恒；看到很多的零件和粒子却视之为完整一体；看到相互依存的事物却视之为各自独立的存在；看到只能短暂存在的事物却认为它有个坚固的“自我”。传统上，这就是烦恼的本质，烦恼就是这样作用的。但在究竟意义上，正如寂天菩萨非常精妙地表达的那样——烦恼的本质恰是智慧。" },
+  { q: "我们可以摆脱孤独、恐惧和失败吗？在摆脱之前，如何更好地面对它们？", a: "自我从来没有一个具体的基础。它是一个假名安立的概念，所以是一个从本质上被误解的概念，好比看到一个稻草人却把它当成一个真正的人。但是即使听上去这虚幻得荒谬，人们执着于自我的习性仍然非常强烈。这个所谓的自我看上去如此具体——这么大，这么小，这么尖，这么钝，这么高，这么短，这么敏感，又这么不敏感。但事实的真相是它没有基础。" },
+  { q: "为什么抑郁症成为了现代社会的严重问题，并且还在日益恶化？", a: "今天的社会之所以有这么多抑郁症患者，肯定有很多原因。抑郁症的主要成因是，无意识情况下，有一种不确定性徘徊在你的心识深处，就是你并没有可确认的身份。当我们说“我”，即使我们对于自己说的是谁非常自信，但只要稍加分析就会意识到，我们真的无法精确定位我们说的是什么。" },
+  { q: "对于治疗抑郁症，心理学家并不能起到很大的作用。但我们知道，佛教是关于心灵修持的，那么其中是否有对治抑郁症的有效方法呢？", a: "心理学我了解的不多，但总的来说，特别是在那些缺少静思文化与传统的地方，人们总是向外求而不是向内求，这时心理学就可能非常有用。在一个像中国那样的传统社会里，心理学可能也正变得越来越有用，因为中国人在追逐现代财富的过程中正在忘掉自己古老的价值，例如儒家的伦理、神圣的寺庙、隐士的传统等。" },
+  { q: "仁波切，您之前说过，修学佛法并不需要放弃享受。但是，为了证悟成佛，是否所有的欲望都必须抛弃？", a: "享乐与欲望不是一回事。你可以仅仅通过欣赏而享受一件事物，而并不想占有它——换句话说，就是不沉迷于它。所以是的，你不必放弃所有的享受；但是所有的欲望，包括想要获得解脱的欲望，最后的确都需要抛弃。而眼下，正如寂天菩萨所说，只有一个欲望、一个无明应该作为工具保留，这个无明就是认为有证悟这回事。为什么我们应该保留它呢？因为我们不想受苦。" },
+  { q: "佛说有漏皆苦，那生命中真正的快乐是什么？", a: "生活中所有的事情在一定程度上都是幸福，甚至挤青春痘也包括在内，只是一旦做过了头，就变成了痛苦。长青春痘不是好事，但是挤一挤能带给你某种快乐和满足感。在这个例子中，没有人会因为挤青春痘可以体验那种快乐而喜欢长青春痘。与此同时，简单地说，我们所认为和谈论的所谓“幸福”，永远是部分的痛苦。首先我们需要问，如果所有情绪都是苦，那么生活中真正的幸福是什么？" },
+  { q: "在爱情与关系中，自我的功能是什么？恋爱时，“自我”扮演着什么样的角色？", a: "自我总是扮演最邪恶、最聪明、最有欺骗性、最强大、最有破坏性的角色，但就爱情和关系而言，自我在它自己的游戏中是最成功的，因为所有人都上了它的当。区别大便和金子是很容易的，即便它们都是黄色的，你会知道该避免什么、该得到什么。但区别铜和金是难的，因为两者都是闪亮的，第一眼看上去它们很类似。爱情就有点儿像是那样。" },
+  { q: "正确的态度可以改善关系吗？如果可以，我们在恋爱和婚姻中应该培养什么样的态度呢？", a: "正确的态度来自正确的见解。而正见，本质上，应该建立在接受真理而不是否定真理的基础上。例如，如果佛教关于一切都是无常的见地深植于你的头脑，那么你会对这段关系中的每一时刻都倍加珍爱。这样的理解有助于滋养适当的关系。时代也已经改变了。很明显，现代婚姻的整个制度、目的及其作用方式，即便和数十年前相比，也有很大的不同。" },
+  { q: "目前在大城市里，有很多才华横溢、相貌美丽的女性，她们独立、善良，性格也好，但却找不到结婚的对象。我认为这样的女性还在不断增加。仁波切认为主要的原因是什么？您对她们有什么建议吗？", a: "这和关系本身无关，却反映出社会和轮回存在里的一种根本性的变化。在过去，女性被留在知识的黑夜里，被拴住、被约束、被关在家里。现在的女性受教育程度越来越高，变得越来越睿智，并且她们想要独立。独立的见地和态度在她们的心智里，甚至反映在她们使用的香波里。所以当她们映射出独立的色彩、光芒与光辉的时候，把男人们吓走的概率就高了很多。" },
+  { q: "仁波切，您在《接受南方人物周刊》采访时提到您有位女朋友，这让很多人感到困惑、不解，甚至难过。请问您是出家人吗？", a: "首先，重要的是要理解，持守戒律并不是修持佛法的唯一方法。在很多传统的社会里，人们相信，要做个好的佛教徒，你就必须出家。所以很多人似乎受到影响而这样认为。然而这不是真的。修持戒律只是佛陀许许多多教法中的一个——事实上，只是佛陀教授的八万四千法门中的一个——并且有很多其他有效的路径我们可以遵循。即使在有着严格持戒教法的声闻乘里，在家众也从未被排除在外。" },
+  { q: "您为什么有女朋友？", a: "我不是一个已经征服了对安全感、伴侣和乐趣的需要的圣人。但如果你问我是不是个很好的男友，我想不是，而且现在，我绝不会是个好丈夫。人们问我为什么有女朋友的时候，我感到他们对我有着很高的期待——认为我在普通人之上。这着实令我担心。我非常希望人们认为我是一个百分之百的人，拥有所有人类的特质、弱点、长处和过患。" },
+  { q: "谈恋爱的时候，您会用什么样的态度去看待爱情？", a: "谈恋爱时有两个方面：理性（脑）和感性（心）。我的头脑里会有这样的认识：没有什么会成功，尤其是在关系上，当两个我执相遇时。仅是一个我执以及它自己的呈现与活动，就已经让任何努力都难以成功了。当两个我执、两种不安全感相遇时，更是没有任何成功的可能。" },
+  { q: "我想大部分中国人会认为，为了追求精神之路，您应该要舍弃世俗的爱和关系，那为什么还要在生活里寻找它们？", a: "首先，我想要说有很多事情应该放弃，但我没有力量放弃；有很多事情应该去做，但我却因太懦弱而没有做。所以基于个人的经验，我认为很多人在这件事情上感到困惑是有理由的。但严格地说，从佛法的角度，你应该舍弃任何滋长你的傲慢、我执和贪心的事。这件事可能是关系，但也可能是假装舍弃关系。" },
+  { q: "那您为什么穿僧袍？", a: "你说的没错——在未经训练的人看来，我穿的衣服和僧众们很类似，我想人们看到这个可能会感到困惑。我所穿的大部分衣服并不是出家众的僧袍，但期望大多数人能分辨两者之间的差异是不公平的。根据在家修行的瑜珈士传统，我应该留长发。但我真的没什么头发可以留，这被我的一个学生静蕊大声宣扬，她管我叫“光头”！但是有件事我需要澄清。" },
+  { q: "有些“世间成就”很高的人，其我执远甚于普通人。这是否意味着他们在解脱之路上有更多的障碍？", a: "更强的对自我的执着意味着更多的不安全感、更强的偏执狂、更加容易激动生气、更加盲目，以及更少的自在放松。所以，那些我执更强的人有着更厚的外壳，当然就更加不幸。像晋美林巴祖师那样的成就者有一个又一个的发愿文，发愿永远不要重生为比尔·盖茨。因为当你获得了世俗的成功，不能修行的概率会大很多。但那并不意味着所有成功的人都有着更强的我执，或者修行路上障碍更多。" },
+  { q: "对于这些事业上相对成功的自我主义者，您有什么好的建议吗？", a: "如果你能接触他们，如果你足够善巧，你肯定可以通过各种各样的方式影响到他们。向他们传教不一定奏效。但是，像我以前说过的，那些我执很强的人实际上不安全感也很强。哪里烟多，哪里火大。所以哪里有不安全感——如果你知道是哪种不安全感——你就可以从那里介入，并通过那个不安全感与之沟通。" },
+  { q: "为什么有时学佛者的“自我”表现得更加严重？是否修行到了一定的程度，在我执快要被打破的阶段，修行者有时会显现更加严重的我执？可以这么问吗？", a: "是的，当然可以。这是最常见的问题之一。这意味着佛法只是进入了他们的头脑，而没有进入心灵。佛法成了自我的另一个工具。有时用坏了很多念珠、压坏了很多坐垫的人看上去像是很好的行者，但这只是外表。他们或许曾经把自己关进一间房里，装作在修行，却没有真的修行。这是很常见的。我的老师们告诉我，精通佛法和修行好的人有两种外相表现。" },
+  { q: "初学者该如何理解不同的乘之间的异同？为什么佛陀要教授八万四千法门？我们怎样选择适合我们的方法？藏传佛教有什么特别的地方？", a: "2009年，我在澳大利亚生病了，最终医生不得不摘除了我的胆囊。此前，出于对我的爱与关心，我的朋友和学生之间发生了很多争论。有一群人完全反对西方手术治疗的方式，建议采用传统的医药与疗法，例如中国针灸、顺势疗法、自然疗法等。不管怎样，最后由于严重的疼痛，情况紧急，我没有选择，只能就诊西医外科，做了手术。" },
+  { q: "怎样选择正确的修行之路？", a: "我并不是回答这个问题的最佳人选，因为从某个角度来讲，我是如此幸运，出生在佛教国度的佛教家庭之中。基本上，我从母亲的子宫里蹒跚而出的那一刻起，一切就都是佛教的——佛龛、经幡、佛塔——真的是所有一切。另一方面，探索精神之路的过程或许是心灵旅途中最为重要的元素之一，而这是我从未经历过的。是的，后来我经历过，但属于已经是佛教徒却还在寻找的那种佛教徒。" },
+  { q: "声闻乘、菩萨乘", a: "例如，他们如何看待轮回与涅槃？如何看待并对治烦恼？如何看待并调伏身心？广义来讲，“众生的根器”可以有很多含义，基本上主要是欣赏、消化和吸收见地的能力。我们大多数人没有倾听和思考的能力，甚至会赞赏“没有轮回和涅槃这些事情存在”那样的说法，因为我们会以听到断见而告终。这真的是取决于你在具有哪种倾向与能力的环境中长大。" },
+  { q: "声闻乘、菩萨乘和金刚乘的修行者所受持的戒律有何区别？", a: "因为众生根器不同，所以佛教的见地呈现的方式也不同。从究竟上来说都是同样的见地，只是剂量不同。对于能力弱一些的人，需要更多定义好的行为准则，例如不杀生、不妄语、不偷盗等。然而追随大乘的人应该具有更广大的能力，所以给他们更广大些的见地，其中包含更加概括性的定义。" },
+  { q: "为什么修行金刚乘成佛比其他乘要快得多？", a: "“快”和“慢”是从修行者的角度而言，并且只是相对的概念。但作为一种方法，金刚乘确实更快。举例说，你很渴，我们知道你的渴需要通过喝水来解除，但是我们遇到一个更大的问题，就是你不相信水确实是水。所以我们只得骗你喝，把水说成牛奶、蜂蜜、橙汁或者其他什么。我们给水染色，让它看上去更有吸引力，然后我们才能让你喝。" },
+  { q: "在金刚乘中，守持密乘戒", a: "很难。在你思考的那一刻，你就违犯了三昧耶戒。但是金刚乘伟大的地方就在于，在你思考的那一刻，你也可以修复三昧耶戒。所以这是一条非常非常非常美丽的路径。从究竟意义上来说，修复它比违犯它有更多的机会成功。原因是当你修复的时候，你就距离真理更近，而真理永远不会失败。正是这一点使得金刚乘非常殊胜。" },
+  { q: "如果遇见对金刚乘有误解的人，我们应该怎么办？", a: "理想情况下，我们绝不应该让那些不欣赏金刚乘的人接触到它。不过，如果是一个思维开放的人正在寻觅修行之道，遇见金刚乘，产生了误解，这可以通过闻思修来纠正。但是当然，有些人反对金刚乘，是因为他们真的对金刚乘有误解，把它看成是邪恶或染污的。对这类人，如果有时间、开放性和适当的条件，应该尝试通过逻辑和推理来帮助他们了解金刚乘的见地和修法等。" },
+  { q: "修行金刚乘有十四条根本戒律", a: "如果修行者违犯戒律该如何补救？首先，重要的是要理解，没有先守持所有的三昧耶戒然后再修行这样的事，因为守持三昧耶戒就是修行本身。大乘的经典里说过，所有其他的戒律都像是陶罐，一旦被打碎就无法真正修复；然而大乘的戒律像是金罐，即使它凹损了，如果有一个好的金匠，甚至能把它修复得比以前更漂亮。与此类似，违犯金刚乘的三昧耶戒可能很容易，但是修复它也同样容易。" },
+  { q: "不少中国学生喜欢经常念诵甚至抄写《金刚经》和《心经》。《金刚经》里说，“若以色见我，以音声求我，是人行邪道，不能见如来。”说的是不可以执着于声与相等形式，而藏传佛教中有很多较为形式化的修行方法，例如观想、磕大头、念经咒等。如何正确理解这些修行的方法？", a: "在《金刚经》里，佛陀说，那些把佛理解为具体色相的人，其见地是错误的（“若以色见我，以音声求我，是人行邪道，不能见如来”）。这正是金刚乘想要表达的，不过是以一种完全相反的方式。般若智慧的重点就是，你是否对佛陀有一种二元的分别，诸如“色”，“色”这个概念意味着英寸、厘米、英尺，当然还有重量、颜色、形状等。" },
+  { q: "禅宗里有许多和大圆满证悟相似的公案。请您谈谈禅宗和大圆满的异同。", a: "我没有资格去表述两者的区别。首先我从未真正研究过禅宗，而且我对金刚乘的理解也很有限。非常概括地讲，禅宗似乎是大乘佛教的精华。禅宗用的是大乘的佛经，例如《金刚经》，那是他们的基石和根本。大圆满是金刚乘的教授，不仅使用所有我刚才提到的大乘佛经，而且也用密续的方法。" },
+  { q: "金刚乘怎样看待净土", a: "对于发愿往生净土的人，金刚乘是否也提供了有效的修持方法？在很多方面，净土的修法和金刚乘非常接近，因为金刚乘里也讨论净土、净观等。或许只有一点点区别，比如在净土法门里，到达净土差不多是一个物理过程——你发愿往生净土并为此修行；然而金刚乘里，它更加像是对净土的发现和认识，净土就在这里，就在你读着这本书的地方。" },
+  { q: "您对净土宗的弟子有什么建议吗？如果把金刚乘和净土宗的方法结合到一起来修，是否可以更快地去到净土？", a: "修行者不一定要同时修持两种法门以迅速往生净土。但是如果两种法门都有，有点像是带了一块额外的电池。修持净土法门靠的是虔诚与信心。那些希望往生净土的人必须生起坚定不移的信心。为此，修行者必须对我们习惯性的怀疑生起怀疑。当我们面向西方睁开双眼时，我们无法当下见到阿弥陀佛的刹土。" },
+  { q: "金刚乘中也有许多净土的修持，那么金刚乘行者的目标应该是什么呢？是应该发愿即生证悟成佛，还是往生净土，在那里开始修证？", a: "一般来说，在金刚乘中，往生到净土就是证悟。金刚乘是这样诠释的。" },
+  { q: "一些人认为自己修持的是大手印", a: "这样的不二法门，所以对往生净土的渴望也是一种应该避免的执着；而另外一些人认为净土法门适合一切人，其他法门没有存在的理由和必要性。仁波切，您认为这两种观点是否矛盾？修行者是否有可能吸收二者的精华，并在日常修持中加以利用呢？两者都是错的。前者没有理解净土本身就是没有二元分别的刹土，后者剥夺了佛教法门的多样性。" },
+  { q: "您可以谈谈不同的根器及其特质吗？很多学生对于自己是什么根器都很好奇。知道这个重要吗？基本上没有人是上乘根器，除了那些因愿力而来到这个世界上的人，可以这样说吗？", a: "知道自己的根器并不那么重要，也不是必要的。重要的是发愿自己能成为最好的根器。" },
+  { q: "我们得具备适合的根器才能修行金刚乘吗？", a: "是的，修行金刚乘必须具备合适的根器，本质上，适合于金刚乘的根器是开放的思维和对金刚乘的信心。" },
+  { q: "如果有人问您他们是不是修习金刚乘的根器，您会如何回答？", a: "我个人回答不了这个，因为我自己也是一个无明的众生。然而，就像我刚才说的，金刚乘主要的根器就是信心和开放的思维。你或许认为自己对上师三宝有信心，对轮回有厌离心，等等。但是对抗旧的习气并真正摆脱它们的束缚是很难的。同样，接受金刚乘里以一些难以置信的东西作为修持之路也是很难的。如果一个上师告诉你不要偷盗，你无法和他争论。" },
+  { q: "请您谈谈“净观”，以及它在密宗修行里的重要意义。", a: "“清净”这个词是非常重要的。它不应被误解为与“不清净”相对的“清净”。这里所说的“清净”超越了清净与不清净。当我们说到对上师的净观，如果在你的感知里，你的上师长了个鹦鹉鼻子，并不是说为了清净，你必须在感观上把鹦鹉鼻子改为人类的鼻子；而是说，你应该认为，无论是鹦鹉鼻子、人类的鼻子还是天堂里的鼻子，所有这些都只是自己的感知而已，其实没有一个外在的、实存" },
+  { q: "为什么我们只能在金刚乘里看到净观？其他教法中有这个概念吗？", a: "因为金刚乘应该是以果作为路径的方法。即使在大乘中，果也是清净的，所以我们已经在这样思维了。就像你洗盘子的时候，你已经知道、接受并观想它们将会是干净的。事实上，净观是表达在大乘佛法中所教授的慈悲的一种更高级、更复杂的方式。在大乘佛法中，所有众生都如同你的母亲一样，他们应该得到照顾。" },
+  { q: "藏传佛教为什么会出现不同的教派？作为利美运动", a: "我们应该给治疗不同病症的药品贴上不同的标签，以识别这是治头痛的药，这是治牙痛的药，这是治鼻子痛的药，而不是说这是黑人吃的药，这是白人吃的药。不幸的是，当大乘和金刚乘的修行者给佛陀的教法分类时，总有点精英主义的倾向。当人们说，“噢，那是声闻的方法”，他们总是有些看低它。" },
+  { q: "作为佛教居士，很难同时追随多个传承。我们怎样做到既坚持一个传承的修行，同时又坚持不分教派的主张？", a: "这很简单。比如当你头疼，你应该吃治疗头疼的药片。这并不意味着你应该谴责或者不尊敬其他的药物，或者向那些胃疼和脚疼的人推广头疼药。同样，对你来讲，如果某个传承能够启发你的灵感，让你受益，对你有效，那你就应该享受它，同时应该想，就像这个特定方法对你有用一样，其他传承里的方法也一定相应地对其他人有用。" },
+  { q: "有没有一种方法能把所有教派的优点都融合进我们的学习和修行中？或者说，有没有这样做的必要？", a: "实际上，没有必要融合它们。佛教方法的伟大之处在于，每一个路径都是完整的。但是也有一种说法，外修声闻、内修大乘、密修金刚乘是一种很好的做法。这实际上是一个非常重要的窍诀。缘觉（梵Pratyekayana/Pratyekabuddhayana）：九乘之一。缘觉是不依靠听闻佛法而通过自身智慧的力量独自觉悟的解脱者。他们比声闻有更加深刻的智慧。" },
+  { q: "什么是传承？什么样的传承是无染的和真实的？为什么无染的、真实的传承对于修行者如此关键？", a: "这是个很重要的大问题。事实上，我正在写一本单独讨论这个话题的书。有些书籍，比如一位美国人写的《当下的力量》，作者似乎声称自己所写的内容是神为他显现的启示录，但我们却能清楚地看到，书中很多内容是从佛教经典中摘录的。当然，比起传统的教授，这家伙的当地语说得好很多，所以适合当地的文化。" },
+  { q: "为什么我们很少在自己身边看到证悟了的圣人？我们怎样才能相信证悟是可能的事情？", a: "这就是为什么，真正的菩萨发愿在地球上长时间居住游历是如此重要。但是最终，当他或她来到你家门口，你需要有相应的福报，才能认出这位圣人。如果你真的很有福报，当一位圣人在你眼前出现，你就能看得到。" },
+  { q: "我们怎样积累这样的福报？", a: "渴望遇见已经证悟的人，渴望和他们在一起，渴望能够从他们那里获得功德与加持，这些始终是关键所在。一旦你有这样的渴望并为之努力，你就不会把挑战视为痛苦，并且你为此所做的一切都会成为积累福德的方法。" },
+  { q: "有那么多众生要度化，而伟大的上师这么少，怎么办呢？未来这种情况会好转吗，还是会更加糟糕？", a: "如佛陀所说，只要有众生，就有佛。所以当我们看到这么多的众生，我们应该满怀信心，安心相信，有成千上万的佛菩萨在为他们的解脱而辛勤工作着。" },
+  { q: "金刚上师有哪些类型？", a: "有和善的上师、博学的上师、戒律清净的上师，有以上三者都具备的上师；有隐藏着的上师、爱炫耀的上师、事业广大的上师，也有传统的学院化的上师，等等。但是，从严格的精神性立场来讲，上师是件绝对个人的事情。你必须找到自己的上师，这与他的学历、级别、肤色、身材无关，只是一个教给你解脱之道的人，他关心你的解脱，有勇气告诉你你需要听的，而不只是你想听的。" },
+  { q: "有的金刚上师在示现上像是没有任何执着的疯狂瑜伽士，我们如何分辨这是具德上师的示现，还是不如法的做法？", a: "非常难，真的太难了。我们有责任要考验这些上师。即使没有完美的测试，你也可以用些常识。如果一个上师行为癫狂做事离谱，你或许可以尝试对他同样地癫狂离谱。如果他真的不为此生气，也没有因此过多地改变价值取向、行为和思考方式，那么或许他并不坏。你可以用他的方法来考验他。他可能会辱骂你或者忽略你，那么你也同样的对他，看他是否会生气或者难堪。" },
+  { q: "我们应该怎样看待那些疯狂的瑜伽士的做法，并对之生起信心？例如帝诺巴", a: "吃活鱼等等，还有很多古代和现代的例子。如果寻找和选择上师只为追求解脱、证悟真理，那么其他的事就比较简单了，也不那么重要。但如果你是为了追求自我满足，想成为重要机构的一部分，或成为一位重要上师的弟子，那么你就会开始以上师的行为和外表来做判断。所以动机非常重要。" },
+  { q: "作为您的弟子，不论仁波切您做什么，我们对您的信心都不会动摇，但是对别的人就很难生起净观，这是什么原因呢？", a: "这或许只是业缘、业债或者业的连接，不一定是坏事，特别是如果伴随着正确的动机和训练的话。但是当然，有一个上师并不是不喜欢其他上师的理由。这也并不意味着你必须要跟随世界上的每一位上师，也不是说你只能有一位上师。有时候西藏喇嘛们好像主张，一旦你成为某位上师的弟子，你就应该只追随这一位上师。那不一定正确。关键取决于你有多大能力。" },
+  { q: "某些瑜伽士看似疯狂的行为是他们修行的一部分吗？我们这些弟子可以效仿吗？", a: "是的，这样的行为可能是他们修行的一部分，也可能是他们慈悲的示现。他们想要不断地把地毯从你的脚下抽走，想要不断地打破你的概念，想要不断地打破他们自己的概念。当你对自己正确的见地有足够的信心，当你对自己不受希望和恐惧影响的能力有足够的信心，那么是的，你应该试着模仿他们。但是如果你有希望和恐惧，即使只是一点点，那你就不能模仿他们。" },
+  { q: "仁波切，可以解释一下金刚乘中根本上师的概念吗？", a: "根本上师的定义非常复杂。有时根本上师指授予你灌顶的人。根本上师的概念是密续里特有的，在大乘里找不到，在声闻乘里肯定也找不到。在金刚乘里，有根本上师这个术语和现象。根本上师的概念和很多事情相关。在金刚乘里，自己的烦恼和自己的元素都被用作路径。我们有属于某个佛部的倾向——莲花佛部、珍宝佛部、金刚佛部、事业佛部和如来佛部，这取决于我们自己的烦恼和元素。" },
+  { q: "您可以谈谈您的根本上师吗？", a: "对我来讲，即便只是宣称自己有根本上师也是种很大的傲慢，因为我不知道自己是否曾经做过一名学生。一个学生必须是一位真正的追随者，而我从未做到过这一点。因此，我不敢把他们叫做我的根本上师，这样做会染污我所有的上师的名字，对于密续的传承也是一种耻辱。相对来说，那些曾为我传授教法的上师是非常了不起的。" },
+  { q: "从弟子的角度，我们如何守持对根本上师的三昧耶戒？", a: "努力始终保持正确的态度和净观。净观是如此重要。同时也应该发愿并祈祷自己成为一个好学生。一般而言，持守三昧耶戒，特别是对上师持守三昧耶戒是很困难的。有好的闻思基础，并对见地有些了解，比如中观，总是有帮助的。实际上，一个人也应该对如何与上师相处保持正念，比如可以和上师在一起呆多长时间、应该和上师有多亲近等等。" },
+  { q: "我们应该期待和上师之间建立起怎样的关系？或者我们压根不应该有任何期待？", a: "学会不去期待是一条非常非常深奥的道路，特别是对上师。但是一个人的期待可以被祈祷和发愿所替代——希望上师永远不要把我们孤单地留在轮回的荒漠里，因为我们都是盲人，荒漠里没有清晰的路，我们也没有指南针或者地图一类的装备。依靠上师的引导，对此发愿并祈祷，这不一定是期待。期待指的是我们为上师做事，然后希望他也为我们做些什么作为回报。" },
+  { q: "在您的作品《不是为了快乐》中，您提到，找到自己的上师，以及在我们和上师的关系的每一个阶段，福报都起着至关重要的作用。您能教我们积累这种福报的方法吗？", a: "单单对那些还没有上师的人而言，蒋贡康楚罗卓泰耶告诫我们说，作为一个佛陀教法的追随者，我们已经有一位共同的老师，那就是释迦牟尼佛本人。但是当然，我们希望有一位人类的上师和我们说话，给我们指导，并纠正我们的错误。因为还没有这样一位人类的上师，我们暂时可以向释迦牟尼佛祈祷，祈请他示现一位能亲自和我们沟通的上师。这样做可以积累很多福报。" },
+  { q: "仁波切，您确实有很多狂热的女弟子，她们中的很多人最初只是受到普通的吸引，最终却生起了真正的信心，您是如何做到的？情感问题是女性修行者特有的一个障碍吗？您在这里想对女性修行者说点什么吗？", a: "有人告诉我，我有很多疯狂的追随者。我把这当成一种恭维，因为如果一家医院里住满了病人，那一定说明这家医院还不错。如果我真的努力践行纯正的菩萨道，我会说，我的女性追随者还不够多，我希望有更多。通常来说，所有人，包括和我有关联的所有女学生，我们都是因为业的联系聚在一起的。我一定是欠了他们很多，他们也一定欠了我很多。" },
+  { q: "我们该怎么看待在修行佛法过程中可能出现的神通，或者说超自然能力？能够以此来判断一位上师吗？具德上师的特质中，为什么总是强调慈悲和智慧，而不是神通？", a: "世俗意义上的超自然能力完全不是佛教修行的目标。如果一个上师的预言是准确的，如果他的法事会起作用，如果他能治愈你外在的疾病，如果他有透视能力，如果他可以准确地算命或者看风水——但所有这些都不能让这位上师更加伟大，一点也不会。这些完全没有意义。更可能的是，这位上师会欺骗很多人。上师必须具备的是一种能力，而且是最要紧的一种能力，那就是让你获得证悟。" },
+  { q: "仁波切怎么看待很多假上师的出现？", a: "不仅是在当代，即使在佛陀的时代，假上师也存在。假上师给我们带来一种挑战，你必须穿过整个迷宫，努力找到破解的办法，才可以找到那个正确的上师。实际上，很多假上师让生活变得很有趣。假或者不假和这位上师有多少佛法知识有很大关系，但实际上那是一个非常次要的判断方式。更重要的是看他是否戒律清净。" },
+  { q: "仁波切，您生下来就是佛教上师，所以人们一般都对您是如何被抚养长大的非常好奇。可否给我们讲讲您的童年？", a: "按理说我应该是蒋扬钦哲确吉洛珠的转世，但我并不确定。因为对于蒋扬钦哲确吉洛珠和他的前世蒋扬钦哲旺波来讲，没有转世为更好的人，或者至少是同等的人，是一种耻辱。如果我真的是蒋扬钦哲旺波和蒋扬钦哲确吉洛珠的转世，那么，他们证悟的功德确实已经耗尽，所有烦恼和坏的一面都回来了。因果规律不会犯这样的错误。不论怎样，不管真假，我无法摆脱蒋扬钦哲转世之名。" },
+  { q: "仁波切，您提到，一个上师不仅需要具有广博的佛教知识，也应该真切地理解众生的痛苦。您是如此受欢迎，因为您好像就是我们当中的一员，一点也不遥远。在您的人生中，您认为是什么让您懂得您的弟子们，理解他们的欢乐和痛苦？", a: "我不确信我能理解人们的痛苦。我希望我能理解，我真的想理解，并且我认为，任何一个负责任的佛法老师都应该理解。这很重要，事实上这可能是一个老师应该知道的最重要的事。医生必须知道病人的症状，否则这个医生就没有用处。我希望自己不仅能够了解人类的痛苦，而且了解所有众生的痛苦，并且不仅了解，我希望自己还可以有同情心与同理心。" },
+  { q: "藏传佛教中活佛的轮回转世系统听上去很神秘。仁波切，修行者修行到什么程度才可以乘愿而来，而非像我们这样因为业力牵引而来到世间？", a: "理想的情况下，所有活佛的示现都是愿力与慈悲的结果。对像我这样的人来说，我希望可以有选择，却如同风中之羽一般无法选择，而是被各种境界拉来推去。在吹动你的所有境遇中，最糟糕的就是宗教制度。这就是为什么伟大的策列·那措·让卓在一个祈祷文中说，“永远不要重生为一个重要的大寺庙里的高阶喇嘛或者活佛”，因为一个寺庙里的高阶喇嘛会通过精神物质主义自欺欺人。" },
+  { q: "仁波切可否谈谈活佛转世系统在佛教金刚乘传播过程中的角色和作用？", a: "我愿意相信活佛制度有助于金刚乘的传播，但严格来讲，我不知道活佛们在多大的程度上给予了帮助或是带来了伤害。这就是蒋扬钦哲确吉洛珠所说的：“将会传播佛法、使佛法得以稳固的是活佛，将会毁坏佛法的也是活佛。”他说得真对。特别是现在，有这么多假活佛——这么多！假活佛的唯一好处是，他们使生活变得有趣。" },
+  { q: "仁波切可否给我们讲讲，现在的年轻活佛是如何锻炼和成长的？", a: "我们的上一代，像顶果钦哲仁波切那一代，经历了许多风雨。基本上他们必须搬离自己的家园——那一定是很大的冲击——但他们却从未放弃佛法，而是在帐篷里日复一日、年复一年地传教佛法。他们在帐篷里培养和训练学生，吃的只是土豆，喝的只是热水，年复一年都是如此。然后，我们这一代出现了。那些喇嘛没少训斥我们，说我们被宠坏了、太懒惰等等。那时候我们不能理解。" },
+  { q: "为了在现代社会中更好地传播佛法和利益众生，您认为活佛转世制度是否需要与时俱进地做出调整？如果需要，哪些部分应该保留，哪些部分应该加以改变呢？", a: "我确定活佛转世制度需要很多调整，但在任何调整之前我们都需要讨论，然而最近没人在做这样的讨论。我愿意和那些年轻活佛的寺庙、活佛府以及他们的老师共同探讨，但他们假装什么也没发生。就像鸵鸟，当危险发生时，它们会在地上挖个洞，并把头藏在里面。至少鸵鸟还知道危险正在来临。而年轻活佛们的情况是，他们甚至都不知道出了什么问题。" },
+  { q: "您觉得现代教育系统所提供的是孩子们真正需要的吗？佛教能够提供什么来帮助这些孩子呢，特别是在中国？", a: "教育在许多方面是个让人遗憾的现象，因为教育是某种形式上的洗脑，而每当洗脑时，我们总有些预谋。在我们的预谋中，我们总是认为自己的价值观是最好的——某个特定的系统、宗教、政治意识形态、经济结构，诸如此类。很早以前，某个人在某个地方决定黄金是好的，于是今天所有人都看重黄金并到处寻找。" },
+  { q: "我们应该把佛教中的什么内容提供给孩子们？", a: "这是一个很大的问题，可我们一直忽略它。美国的学校教这个吗？中国的学校教这个吗？生物学和解剖学教给孩子们的仅仅是大部分人有两只脚、一个鼻子、两只手，每个手有五根指头。但是有一种东西叫做“心”，实际上它是最重要的，也是最有力量的。" },
+  { q: "建立佛教幼儿园、佛教小学，甚至佛教大学，把佛陀的教授和科学、技术以及其他人文学科结合在一起，您认为这是一个好主意吗？", a: "是的，但我认为在这个问题上必须谨慎，因为我们不想把佛教搞成某种充斥狂热崇拜的宗教组织。我认为佛教的价值观和智慧是非常重要的，但如果有一所佛教幼儿园、佛教中小学或者佛教大学，其目的不该是让更多的人成为佛教徒。其目的应该是让更多的人成为善良、有远见、有同情心、有教养、有创造性、优雅而勇敢的人。" },
+  { q: "如果您具备建立一所幼儿园的一切条件和资源，您希望它是什么样的？", a: "这当然是一个梦想。如果我有机会为孩子们建立学校，我想让他们了解做人是怎么一回事。从当今世界的各种显现来看，我们的孩子正在忘记自己是人，这不仅是个比喻，也是字面意义上那样。孩子们的行为举止开始变得像机器人那样，并开始认为其他人也像是机器人，所以当他们扣动扳机向别人开枪时，不会有良心上的不安。他们并不在意别人的痛苦。" },
+  { q: "您知道中国的“虎爸”、“虎妈”现象。父母们非常努力地教育孩子，希望他们日后取得成功。竞争日益激烈，孩子们负担很重，即使只是小学生，每天也要花很多时间学习。仁波切能否给这些父母一些建议？", a: "在某种程度上，我其实真挺喜欢这个主意的。但是，我认为重要的问题是，虎爸虎妈必须准备好自始至终都要做老虎。只做二十年的老虎，然后把孩子们留在有各种不同动物、虎爸虎妈和虎仔都不适应的荒漠里，这样做没有意义。假如虎爸虎妈真的很好地训练了自己的孩子二十年，但是二十年后，世界完全改变了，原来的目标及为之教给孩子的所有东西都不再有用，那将会怎样？" },
+  { q: "如何才是最好的对待十几岁青少年的方式？", a: "对于这个问题，我没有特定的答案，但或许记住这一点会有帮助：从现在开始，很短时间内，可能只是十年，世界就会发生剧烈的变化。我们生活和沟通的方式将会改变，环境在变化，前沿技术的诞生将使我们的生活更快速、更高效、更经济。这也意味着，挑战也将变得更快、更高效、更复杂。所以我们的孩子，在大约十年之后，在精神和身体上将会经历另一种不同的痛苦。" },
+  { q: "从您的角度来看，父母和孩子之间完美的关系是怎样的？您可否谈谈年轻人应该成为怎样的父母？佛教可以帮助改善家庭关系吗？", a: "或许我有偏见。本身作为一个佛教徒，我会说，如果孩子们在佛教的环境中长大，父母都是修行的佛教徒，家里有佛像，他们闻思佛陀的教授，经常说些“爱”、“慈悲”、“宽容”和“智慧”之类的词，这肯定会有效果。至少比像阿富汗那样的地方好得多，在那里人们谈论的全是枪，还没有AK47高的孩子却背着AK47步枪。当然，这是非常个人的看法。" },
+  { q: "尽管如此，仁波切您会认为不信仰佛教的人就没有希望吗？", a: "不是，他们作为人并不是真的没希望，特别是有其他很多同样深刻而优秀的宗教，比如耆那教和印度教的几个流派。对中国来说，受到道家哲学和智慧影响的人们是这个国家的希望，因为道家敢于讨论超越了这个世界的另一个世界，这是非常有价值的。" },
+  { q: "为什么您认为中国对佛教很重要？当代中国在寻找很多社会问题的解决之道时，应该如何从佛教中受益，对此您有何建议？", a: "我说得不一定对，但是我认为不仅是现在，即使是在历史上，中国也可能是唯一或者说是少数几个佛教进入到草根阶层的国家之一。在这少数几个国家中，中国是在社会层面接纳佛教的最大国家。即使在佛教诞生的国家——印度，佛教也从未真正进入到草根阶层。同样，传统上中国是佛教最慷慨、最有力量的护持者，或许甚至超过戒日王、阿育王和迦腻色迦王加在一起。" },
+  { q: "最近有西方研究者预言，三十年之内，中国将拥有世界上最大的基督教社会。仁波切对此有何看法？", a: "作为佛教徒，我深信因果。当因缘聚合，结果就会发生。所以如果某些因与缘在中国聚合，这个预言很可能成为现实。毕竟，阿富汗、印度尼西亚和巴基斯坦这些伊斯兰教主导的国家曾经都是佛教国家，而现在那里却找不到佛教的痕迹。与此同时，谁会想到像佛教这样一个有两千五百年之久历史、看似古老的亚洲宗教会在欧洲和美国兴盛呢，但事情就是这样。" },
+  { q: "有的人试图把基督教和佛教结合在一起。仁波切对此有什么看法？", a: "那是毫无用处的，非常愚蠢，而且是同时剥夺了两个传统。首先，你肯定不能把佛教加入到基督教、伊斯兰教或者其他宗教里去。我不是在说佛教更好——它只是不同。事实上，这些独特之处正是人类的财富，为我们提供了不同的见地、哲学和宗教以供选择。向左与向右不能被合并为一个方向，否则你哪儿也到不了。你应该选择一个方向，并尊重那些往另一个方向走的人。" },
+  { q: "中国年轻的佛教徒应怎样帮助佛教成长，您对此有何建议？除了慈善活动，我们还能做些什么？", a: "佛教的力量来源于对思辨与批判性思维的珍视。一直如此。如果你了解古代那些伟大的大学，比如那烂陀，就会很清楚，佛陀本人提倡批判性思维。不管是在中国还是其他地方，人们始终不应该忘记这一点。对于佛教的存续来说，对思辨与批判性思维的这种承许可能比慈善活动更加重要。与布施免费汤羹的寺院相比，我更喜欢一个有正规学术课程、能够学习批判性思维的寺院。" },
+  { q: "现在，我想问您对一些有争议的事情的态度。首先，您对同性恋者有什么看法？", a: "我个人对此没有看法。如果你问我佛教对同性恋的看法，那我只需要重复我以前说过很多遍的话——佛法的主要目标是真正地了解真理，并从错觉中得到解脱。错觉的意思是，看到幻象却以为它是真的。从这种错觉中解脱是最重要的事情。在这一过程中，我不认为性取向会带来很大的不同。我也不能说一个异性恋者比同性恋者有更多的机会了悟真理。" },
+  { q: "您对卖淫有何看法？", a: "我们人类世界里有这么多偏见。对卖淫一类的事，我们怀有非常奇怪的偏见。同时，我们很尊敬律师和政治家这种职业。可很多时候，我们真的不知道是谁在做不道德的事。我反对强迫卖淫——事实上不仅是卖淫，任何被强迫的活动都是痛苦的因，是不人性的。" },
+  { q: "您对毒品有什么看法？", a: "有很多不同种类的毒品。在佛教里，任何能让你迷醉或者改变心识状态的外部物质都是不建议使用的。不用说，很多这种药物对你的身体、心智，乃至最终对家庭和社会都是非常有害的。但我们也得考虑其他一些事情。在这个世界上的每一个角落，酒精都是被社会接受的，往往成了某种惯例，甚至名垂青史。" },
+  { q: "您对堕胎和避孕有什么看法？", a: "我无法告诉人们不要有性行为。对于已经受戒的和尚或者尼师，显然毋庸赘言，他们不该有性行为。对于其他人来讲，我们不应该鼓励拥有不固定的多个性伴侣，不仅是从精神角度，也是从健康的视角。那些怀孕并想堕胎的人曾经问过我很多次，他们该怎么办。如果你问的是佛教徒关于堕胎的立场，那么直截了当地说——从根本上你是在杀人。事实上，你在杀害自己的孩子，所以业报非常严重。" },
+  { q: "仁波切可以谈谈艺术吗？一个艺术家，比如画家、音乐家、作家、歌手和舞者怎样才能有创造力，我的意思是，心灵层面的创造力？佛教在这方面能提供什么帮助吗？", a: "不仅是艺术，甚至政治、经济以及其他一切——当我们怀着正确的动机去开始努力的那一刻，我认为就已经是一种成功了。成功不能以完成的工作来衡量，而应该用是否以正确的动机开始来衡量。如果一项工作以正确的动机开始，即使连百分之一都没有完成，大乘佛教也会把它视为是成功的。不管怎样，“工作完成了”是什么意思呢？工作永远也做不完，而且也不应该做完。" },
+  { q: "有了正确的动机，我们怎样才能更有创造力？", a: "很难。因为有创造性意味着从我们习惯的区域中走出来，那会很不舒服。如果要完全走出这个区域则更加困难。如果你的艺术是为了和别人沟通，在那个区域之外，也许没有任何能与你沟通的人。所以，这种情况就像是一只脚应该在界内，而另一只脚应该在界外。没有太多人会想要处在这样的境地。一个人还需要非常诚实才能有创造性。诚实是困难的，因为我们习惯于不诚实的思考。" },
+  { q: "您为什么对电影感兴趣？为什么电影对您来说很重要？", a: "我甚至不知道电影是否依然重要，因为有很多其他媒介，或许电影已经过时了。但我想，我喜欢电影肯定有很多原因。大多数原因非常自私、世俗和物质主义——和这个世界上很多人非常相似。我们喜爱影像，特别是能动又能发出声音的影像。当然，还有一点，能够讲个故事吸引人们的注意力，即便只是五分钟，也能让你有种成功地欺骗人们、并把他们带入幻境的胜利感。肯定就是这个原因。" },
+  { q: "所有人都需要面对死亡，包括亲人朋友的死亡和我们自己的死亡。对于世俗的人来讲，死亡是一件不太吉利的事情，大家一般都避免谈论它。但是在藏传佛教里对此却有很多探讨、研究，甚至有专门的修行方法。仁波切可否谈谈，藏传佛教中是如何看待死亡的？对于死亡我们应该建立怎样的态度？死亡对我们来说意味着什么？", a: "讨论那些必然要发生的事总是很重要的。当人们开始隐藏必然要发生的事那一刻起，有些事情就错得离谱了。或许在新年或者某个人的生日那天你不愿意讨论死亡，这是可以理解的，因为死亡被视为一件不幸的事。然而它之所以被视为不幸，一部分原因是我们不想失去自己拥有的，另外很大一部分原因则是我们不知道死亡是什么。" },
+  { q: "在死亡过程中以及死亡之后，我们都会经历些什么？修行好的人和普通人死亡时的经历有什么不同？死亡对于修行者与非修行者意味着什么？", a: "有很大区别。如果你是个好的修行人，你会对死亡有很充分的认识，或许不一定正确，但多少总有些认识。如果你不是修行人，对于死亡也没有任何认识，而生命中第一次，你被迫要去一个以前从未去过的地方——你准备好了吗？在死亡过程中发生什么完全取决于不同的情况——死亡原因、死亡方式，以及你有多少准备，换句话说，也就是你关于死亡有多少认识。" },
+  { q: "藏传佛教中为我们提供了哪些修行方法来为死亡做好准备？", a: "某种程度上，不仅金刚乘，所有乘乃至佛陀的所有教法从来都不是为我们今世生活的舒适与成功而设计的，而是都旨在超越今世——如有可能当然在今世就获得证悟，但如果不行，至少在未来世。特别是金刚乘里面有一种叫“中阴”的教法，系统地教授在死亡的过程中如何实证真理，如何不被幻象和错觉所迷惑。" },
+  { q: "这些方法修行到什么程度，就可以说我们已经为死亡做好了准备，或者说就能确信自己在死亡时不会失控？", a: "当我们不再有遗憾，或者感觉到已经为死亡做好了准备的时候。为来世做好准备，实际上，是非常重要的。当一个人不太执着于诸如赞扬、批评、得失这类事情，当一个人不会因为被忽视而过于烦躁，也不会因为受到关注而过于激动，当一个人无需刻意努力便能忆念佛、法、僧、上师以及佛法的各个方面，那就表明这个人在死亡的时候会有一点儿把握。" },
+  { q: "如今在医院里已经很难安静地往生了，医生们往往会尽一切努力去抢救病人，而那些措施可能会干扰修行者往生的努力，所以对修行者来讲，安静地在自己家里往生是不是最好的方式？", a: "应视情况而定。但是对于修行者，安安静静地死去是非常好的。正如米拉日巴所说，“如果当我生病时，没人问我怎样了；当我死去时，也没人因此而哭泣；如果我能在一个与世隔绝之地死去，那么我，米拉日巴，一生的愿望就实现了。”这是他的道歌。所以，是的，一般原则是，安静地死去对修行者来说是很好的。如果即将往生的是位经验丰富的修行者，亲友们应该尽可能让他一个人呆着。" },
+  { q: "仁波切可否详细阐释一下超度的过程？当亲友往生时，如果他是佛教徒，我们应该如何处理其临终事宜？如果他不是佛教徒，我们又该如何处理呢？", a: "这取决于他们是什么类型的人。即使他们是佛教徒，有的人也只是自称佛教徒，或者生在佛教家庭，或者是理性上的佛教徒，但从未修行。但如果一个人是佛教徒并且有一点儿修行，则会带来很大不同。此外，有些人不是佛教徒，但如果他们非常平静，天性慈悲，为人慷慨，对自己的生活有满足感，那么或许死亡不会那么令他们惊恐。" },
+  { q: "我和爱人分开了，怎么都放不下，一直很痛苦，该怎么办？", a: "我们之所以这么痛，往往是因为太执着于“和一个人永远幸福地在一起”这个理想，而对这个理想愿望的执着，经常会造成很多痛苦。如果佛教关于一切都是无常的见地深植于你的头脑，你看待这段关系的方式就会不同——当你把对方看成无常的，把你们之间的关系也看成无常的，反而可能让你更珍惜曾经在一起的每一时刻。同时也要看到，轮回本质上就是有缺陷的：为了让一些事情看上去行得通，某些其他的事情就进行不下去。这不是你一个人的失败，而是事情本来的样子。接受这个真理，并不会让你变得冷漠，反而会让你更谦逊、也更真诚地去爱下一段、爱此刻。" },
+  { q: "我无法接受和爱人的别离，一想到要失去对方就崩溃，怎么办？", a: "先别急着把这份痛推开——它正是因为你爱过、爱着，才这么重。我想跟你说几件事。第一，你害怕的，其实是“只想要无常里你喜欢的那一半”：你要相聚、不要分离，要拥有、不要失去。可这两半本是一件事，就像没有出生就没有死亡。能够欣赏整个循环，而不是只抓喜欢的那一半，痛苦才会真正松动。第二，想想看：在你几乎失去一切的那一刻，你所爱的人会比任何时候都更有意义——这说明，正是“会失去”让此刻如此珍贵。一个有无常观的人，每次品茶都像在品人生的最后一杯茶。第三，聚和散有它自己的道理，当业风以某种方式吹起，人们就相聚，有时无论你怎么努力都难以改变。你能做的，不是抗拒别离，而是在还在一起的此刻，全心去爱、毫无保留。抓得越紧，越痛；试着把“我要留住你”换成“我珍惜还能爱你的每一天”，你和对方都会有更多呼吸的空间。" },
+  { q: "我特别害怕失去现在最爱的人，这种恐惧总是折磨我，怎么面对？", a: "想象一下：你在冰湖里游泳，四肢冻僵、抽筋，眼看就要淹死，正当你准备接受死亡时，有人把你救起。在你慢慢复原的那一刻，你几乎失去的一切——家人、房子、你所爱的人，会比任何其他时刻都更有意义。然后你会清醒地意识到：死亡可以在任何时刻打击你，而且它不受贿赂。可悲的是，这个震撼很快会减弱，你又会被日常的快乐诱惑、重新麻木。所以与其用恐惧去抗拒“会失去”，不如让它提醒你：此刻拥有的，正因为无常才如此珍贵。把恐惧翻过来，它的另一面就是珍惜。" },
+  { q: "我一个人很孤独，所以总想找个人陪，可又怕失去自己，这正常吗？", a: "这非常正常，甚至可以说，这就是我们每个人的处境：你感到孤单和无聊，所以想要一个伴侣；而你也是自私的，所以想要独立。这两种愿望本身就互相矛盾。更深一层说，自我本质上就是孤独的——它像一个无家可归的人，没有真正的家，却拒绝相信自己无家可归，正是这种否认让我们更孤独。所以孤独并不是因为你身边没有人。我自己作为一个正常人也会感到孤独；身边环绕着很多人，并不意味着永远不会孤独。与其用一段关系去填补孤独，不如先接受“我们在某种意义上本就是孤独的”——这反而会让你在关系里不那么紧抓、不那么慌乱。" },
+  { q: "我爱一个人却得不到回应，这种爱而不得该怎么放下？", a: "先要看清，我们口中的“爱”常常很有欺骗性。普通的爱情看上去有很多给予、理解和宽容，当你爱上一个特定的人，你甚至不会注意他吃饭咀嚼的声音——可这里面，自我穿上了爱情的铠甲，把自己藏得非常聪明。所以“得不到”带来的痛苦，很大一部分其实是自我在受挫。还有一点值得诚实面对：如果你觉得一定要得到某个人的爱才能幸福，这意味着你还在聚集业债，还把自己的幸福抵押在了外缘上。这不是要你压抑感情，而是当你看清这层游戏，理性与感性之间就能有一点平衡——不至于完全盲目，也不至于因此否定自己。" },
+  { q: "我很想念一个已经离开的人，常常陷在回忆里出不来，怎么办？", a: "如佛陀所言，堆砌的终将坍塌，聚集的终将瓦解，出生的终将死亡——这是真理，但人们并不会因此就走出对回忆的执着。这很人性，连我也一样：我有很多回忆，有些永远地消失了，有些还躺在记忆深处，只待被某些单纯的缘由唤醒，比如香菜的味道。拥有回忆，恰恰证明我不是圣人；对证悟者来说没有回忆这回事，因为过去并不存在。所以你不必为放不下而自责，思念是人的一部分。但也要记得，把过去当成衡量当下的标尺，正是痛苦的来源之一。让那些回忆来时来、去时去，不必紧紧抓住不放——你可以怀念一个人，又不被怀念囚禁。" },
+  { q: "我和伴侣总是吵架，婚姻里很痛苦，是不是我选错了人？", a: "婚姻本应对解除孤独有所助益，却也带来痛苦——这几乎是它的本性，未必是你选错了人。要明白，没有什么会成功，尤其是在关系上，当两个我执相遇时；仅是一个我执的呈现，就已经让任何努力都难以成功，而两个我执、两种不安全感相遇，冲突几乎是必然的。另外，今天的婚姻和几十年前已经很不一样，执着于一种“完美婚姻”的幻想，只会带来更多失望。真正有帮助的，是彼此有适当的理解和认同，并且真的给对方自由和空间——我们很快会说“我会给你空间”，但多半并没有做到。常常自问：这个人会给我空间吗，我也会给他空间吗。" },
+  { q: "失恋之后我整个人都很消极，理性上想放下，感情上却做不到，怎么平衡？", a: "这种理性与感性的拉扯，其实是该有的，而且会持续下去。谈感情有两个方面：理性（脑）和感性（心）。我见过很多人遇到感情问题时全然是感性，非常盲目，我为他们难过；但我也见过一些人太理性、太富逻辑，反而害怕坠入情网、变得消极悲观，那也不好。理想的是两者之间有一个平衡。所以你现在的状态并不奇怪。让头脑保有那份认识——关于无常、关于两个我执相遇的游戏、关于不安全感——它说消极一点会让你怀疑，说积极一点，能让你在情绪里保持些许清醒。同时也允许感性存在，它有时会胜利几天或几个月，那也没关系。不要急着消灭任何一边，让它们慢慢找到平衡。" },
+  { q: "既然关系迟早会变会散，那认真去爱还有什么意义？", a: "恰恰相反，正因为会变，认真去爱才更有意义。如果你接受“我们出生了，因而必将死亡”“一切和合的事物都是无常的”，你看待身边人的方式就会不一样：当你把对方、把你们的关系都看成无常的，这反而可能导向一段更加和谐、珍贵的关系。无常不是叫你冷淡，而是叫你珍惜——一个有无常观的人，每次品茶都像在品人生的最后一杯茶。聚散也有它的道理：当业风吹起，人们就相聚，有时无论你怎么努力都难改变。我们能做的，是在相聚时全心去爱、去利益对方，而不是因为害怕结局就不敢开始。怕失去而不敢拥有，才是真正的浪费。" },
+  { q: "我想拥有一段真正好的、长久的关系，仁波切有什么建议吗？", a: "正确的态度来自正确的见解，而正见建立在接受真理、而不是否认真理之上。第一，把无常放在心里，对关系中的每一时刻都倍加珍爱。第二，对“自私”诚实一点——我们都害怕公开表达自己的需要，假装慷慨大方；但如果你能坦白地说“我爱你，因为你身上有很多我想要的，我也愿意给你你想要的”，并真的做到，你反而会拥有一段真正好的关系。第三，给彼此自由和空间：我们很快会说会给，但多半做不到。最后，不要太执着于“永远幸福地在一起”这个幻想，对这个理想的执着本身，就会制造很多痛苦。" }
+];
+
+        const QA_STOP = new Set(["为什","什么","怎么","如何","可以","我们","仁波","波切","您对","应该","是什","的人","这么","一些","对此","看法","有何","可否"]);
+        function bigrams(s) {
+            s = (s || "").replace(/[\s，。？！、：；“”"'（）()\[\]…—\-,.?!:;]/g, "");
+            const g = [];
+            for (let i = 0; i < s.length - 1; i++) g.push(s.slice(i, i + 2));
+            return g;
+        }
+        function matchQA(input) {
+            const inSet = new Set(bigrams(input).filter(g => !QA_STOP.has(g)));
+            if (inSet.size === 0) return null;
+            let best = null, bestScore = 0, bestHit = 0;
+            for (const qa of QA_BOOK) {
+                const qG = new Set(bigrams(qa.match || qa.q));
+                let hit = 0;
+                inSet.forEach(g => { if (qG.has(g)) hit++; });
+                const cov = hit / inSet.size;
+                const dice = 2 * hit / (inSet.size + qG.size);
+                const score = cov * 0.6 + dice * 0.4;
+                if (score > bestScore) { bestScore = score; best = qa; bestHit = hit; }
+            }
+            // 短输入（二字词过少）易虚高，要求更高分；且至少命中 2 个二字词
+            const threshold = inSet.size <= 3 ? 0.42 : 0.28;
+            if (bestHit < 2) return null;
+            return bestScore >= threshold ? best : null;
+        }
+
+        /* ============ 账号体系（纯前端，localStorage）============ */
+        const USERS_KEY = 'RINPOCHE_USERS';
+        const CURR_USER_KEY = 'RINPOCHE_CURR_USER';
+        let currentUser = null; // { phone, dharma }
+        function loadUsers() { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; }
+        function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+        function sessKey() { return 'RINPOCHE_SESSIONS_' + (currentUser ? currentUser.phone : 'guest'); }
+        function currKey() { return 'RINPOCHE_CURR_ID_' + (currentUser ? currentUser.phone : 'guest'); }
+
+        let sessions = [];
+        let currentSessionId = null;
+        /* 本会话运行时状态：已用过的深度flow（去重）、最近命中的主题（上下文衔接） */
+        let usedFlows = {};      // { topicId: Set(已用索引) }
+        let lastDeepTopic = null; // 上一轮命中的深度主题 id
+
+        /* ============ 点击实体铜磬开幕 ============ */
+        let hasHit = false;
+        function hitTheBowl(element) {
+            if (hasHit) return;
+            hasHit = true;
+            ZenAudio.playBowl();
+            // 进入对话页后自动开启背景禅音（借本次点击手势满足自动播放策略）
+            setTimeout(() => { ZenAudio.startAmbient(); ambientOn = true; updateAmbientBtn(); }, 1200);
+            const bowl = document.getElementById('target-bowl');
+            bowl.classList.add('bowl-hit-animate');
+            const waveContainer = document.getElementById('wave-container');
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const ripple = document.createElement('div');
+                    ripple.className = 'wave-ripple active';
+                    waveContainer.appendChild(ripple);
+                }, i * 250);
+            }
+            const splash = document.getElementById('zen-splash-overlay');
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                setTimeout(() => { splash.style.visibility = 'hidden'; }, 1800);
+            }, 600);
+        }
+
+        /* ============ 背景禅音开关 ============ */
+        let ambientOn = false;
+        function toggleAmbient() {
+            if (ambientOn) { ZenAudio.pauseAmbient(); ambientOn = false; }
+            else { ZenAudio.startAmbient(); ambientOn = true; }
+            updateAmbientBtn();
+        }
+        function updateAmbientBtn() {
+            const btn = document.getElementById('ambient-toggle-btn');
+            if (!btn) return;
+            btn.innerHTML = `<i data-lucide="${ambientOn ? 'volume-2' : 'volume-x'}" class="w-4 h-4"></i>`;
+            btn.title = ambientOn ? '暂停背景禅音' : '播放背景禅音';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        /* ============ 对话引擎 ============ */
+        function normalize(s){ return (s || "").toLowerCase(); }
+        function escapeHtml(s){ return (s || "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+        function matchTopic(input) {
+            const text = normalize(input);
+            let best = null, bestScore = 0;
+            for (const t of TOPICS) {
+                let score = 0;
+                for (const k of t.keywords) { if (text.includes(normalize(k))) score += 2; }
+                // 同分时偏好更靠后（更具体的生活场景）的主题
+                if (score > 0 && score >= bestScore) { bestScore = score; best = t; }
+            }
+            return best;
+        }
+        function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+        function pickQuote(topic, input) {
+            const text = normalize(input);
+            let pool = [];
+            if (topic) {
+                const tags = TOPIC_QUOTE_TAGS[topic.id] || [];
+                pool = QUOTES.filter(q => q.topics.some(t => tags.includes(t)));
+            }
+            const direct = QUOTES.filter(q => q.topics.some(t => text.includes(normalize(t))));
+            if (direct.length) pool = pool.concat(direct);
+            if (!pool.length) pool = QUOTES;
+            return pick(pool);
+        }
+        /* 危机 / 高敏感话题安全层：优先级最高，命中即给关怀回应，绕过一切模糊匹配 */
+        const CRISIS_WORDS = ["自杀","想死","不想活","不想活了","活不下去","活着没意思","活着没有意义","结束生命","结束自己","轻生","自残","割腕","跳楼","解脱算了","想解脱","求解脱","解脱了算了","了结自己","一了百了","离开这个世界","撑不下去","活不下去了","不如死了","活着真累","活着好累","活着太累"];
+        const CRISIS_REPLY = "我先停下来，认真地跟你说一句：此刻你愿意把这些说出来，已经是很有力量的事。\n\n这些念头很沉，但它不等于你，也不会永远是这样——只是现在太痛了。请别一个人扛。\n\n如果你在中国大陆，可以拨打 **北京心理危机研究与干预中心 010-82951332**，或全国 **心理援助热线 12356**；台湾可拨 **1925**；香港可拨 **2389 2222**。它们 24 小时都有人接听。\n\n如果你身边有信任的人，现在就去找他/她待一会儿。我会在这里，但请先让一个真实的人，陪你度过此刻。";
+        const SENSITIVE_TOPICS = [
+            { keys: ["堕胎","打胎","流产掉","引产","要不要这个孩子","拿掉孩子","拿掉孩子吗"], reply: "这是一个很重的决定，重到不该由任何人替你轻飘飘地下判断，我也不会。\n\n佛法谈因果与对生命的珍重，但它从不是用来审判你的棍子。你的处境、你的身体、你的人生，只有你自己最清楚。\n\n请去找专业的医生，和你真正信任的人，一起慎重地谈。无论你最后怎么选，都不必用恨自己来偿还。" },
+            { keys: ["未成年","我才十","初中生","高中生","我是学生党"], reply: "你还年轻，正在经历的很多事，确实很难——这不是矫情。\n\n有些困惑，比起跟一个模拟的声音聊，更需要现实中信任的大人帮你：父母、老师，或学校的心理老师。请别小看这一步。\n\n你愿意的话，可以跟我聊聊那些更普遍的困惑，但真正要紧的难处，去找一个能真正帮到你的人。" }
+        ];
+        /* 识别"求助者自己是未成年"：需第一人称/自述语境，且排除家长聊孩子、聊老人等场景 */
+        const MINOR_REPLY = SENSITIVE_TOPICS[1].reply;
+        const MINOR_OTHER = ["儿子","女儿","孩子","娃","宝宝","侄","外甥","学生","狗","猫","它","他","她","爸","妈","爷","奶","父","母","同事","朋友","邻居","宠物","老人","客户"];
+        function isMinorSelf(text) {
+            const re = /(1[1-7])\s*岁/g;
+            let m;
+            while ((m = re.exec(text)) !== null) {
+                const numStart = m.index;
+                const numEnd = m.index + m[0].length;
+                // 数字边界：避免 7岁 / 107岁 / 117岁 被当成 11~17
+                if (numStart > 0 && /[0-9]/.test(text[numStart - 1])) continue;
+                const before = text.slice(Math.max(0, numStart - 5), numStart);
+                const after = text.slice(numEnd, numEnd + 4);
+                // 排除"……岁的女儿/儿子/孩子"等他指
+                if (/^的?(儿子|女儿|孩子|娃|宝宝|侄|外甥|学生|狗|猫)/.test(after)) continue;
+                // 前文出现关系称谓（家长/聊他人）则跳过
+                if (MINOR_OTHER.some(w => before.includes(w))) continue;
+                // 需第一人称自述，或无主语的自述式表达（今年/刚满/才……岁）
+                if (/(我|俺|本人)/.test(before) || /(今年|刚满|才|现在|已经)\s*$/.test(before) || before === "" ) return true;
+            }
+            return false;
+        }
+        function matchCrisis(input) {
+            const text = normalize(input);
+            for (const w of CRISIS_WORDS) { if (text.includes(normalize(w))) return CRISIS_REPLY; }
+            if (isMinorSelf(text)) return MINOR_REPLY;
+            for (const t of SENSITIVE_TOPICS) {
+                if (t.keys.some(k => text.includes(normalize(k)))) return t.reply;
+            }
+            return null;
+        }
+        /* 闲聊 / 工具性问题：平静、简短地回应，不说教、不硬凹禅意 */
+        const SMALL_TALK = [
+            { keys: ["天气","下雨","几度","冷不冷","热不热","晴","下雪","气温"], replies: [
+                "这个去看天气预报吧，它比我清楚。",
+                "抬头看看窗外，或者问问手机，会比我准。"
+            ]},
+            { keys: ["几点","现在时间","星期几","今天几号","日期","几月"], replies: [
+                "看一眼手机或时钟就好。",
+                "时间这种事，问钟表吧。"
+            ]},
+            { keys: ["吃什么","吃啥","午饭","晚饭","早餐","点外卖","饿了","吃饭了吗"], replies: [
+                "都行。想吃什么就吃什么，吃的时候慢一点就好。",
+                "这个你自己定就好。饿了就去吃吧。"
+            ]},
+            { keys: ["你是谁","ai","机器人","你是真人","是真的吗","程序","gpt","模型","真人吗","真的是仁波切","你是什么","你叫什么"], replies: [
+                "我不是仁波切本人，只是根据他公开的著作和开示做的一个模拟。你可以借这些话，照见你自己。",
+                "我是个模拟，回应都来自他公开出版的文字，并非他本人。"
+            ]},
+            { keys: ["讲个笑话","说个笑话","逗我","搞笑","幽默一下"], replies: [
+                "我不太会讲笑话，不过你想聊点什么，都可以说。",
+                "讲笑话不是我擅长的。有什么心里的事，倒是可以聊聊。"
+            ]},
+            { keys: ["你好","在吗","嗨","哈喽","hello","hi","你在不在"], replies: [
+                "我在。有什么想聊的，慢慢说。",
+                "在的。想到什么，直接说就好。"
+            ]},
+            { keys: ["谢谢","感谢","多谢","辛苦了","么么","你真好"], replies: [
+                "不必客气。",
+                "嗯，能帮到你就好。"
+            ]},
+            { keys: ["再见","拜拜","我走了","下次聊","晚安","睡了"], replies: [
+                "好，照顾好自己。",
+                "嗯，晚安。"
+            ]}
+        ];
+        function matchSmallTalk(input) {
+            const text = normalize(input);
+            // 过长的输入通常是真问题，不当闲聊处理
+            if (text.length > 18) return null;
+            for (const rule of SMALL_TALK) {
+                if (rule.keys.some(k => text.includes(normalize(k)))) return pick(rule.replies);
+            }
+            return null;
+        }
+
+        function buildResponse(input) {
+            // 最高优先级：危机 / 高敏感话题安全拦截，绕过一切模糊匹配
+            const crisis = matchCrisis(input);
+            if (crisis) {
+                return { text: crisis, quote: null, topicId: "请照顾好自己", inferred: false, smalltalk: true };
+            }
+            // 闲聊 / 工具性问题，用机锋挡回去，不硬凹禅意
+            const chat = matchSmallTalk(input);
+            if (chat) {
+                return { text: chat, quote: null, topicId: "信手拈来", inferred: false, smalltalk: true };
+            }
+            // 优先：《八万四千问》问答库命中
+            const qa = matchQA(input);
+            if (qa) {
+                return { text: qa.a, quote: { text: "你问的，恰好对应书中这一问：「" + qa.q + "」", source: "《八万四千问》" }, topicId: "八万四千问", inferred: false, qa: true };
+            }
+            const topic = matchTopic(input);
+            const quote = pickQuote(topic, input);
+            if (topic) {
+                let body;
+                if (topic.deep && topic.flow) {
+                    // 深度情感主题：取一条本会话未用过的连贯长说理，避免复读
+                    let chosen = pickFreshFlow(topic);
+                    // 上下文衔接：若紧接着上一轮同一深度主题，加一句承接语
+                    if (lastDeepTopic === topic.id) {
+                        chosen = pick(DEEP_CONTINUE) + chosen;
+                    }
+                    lastDeepTopic = topic.id;
+                    body = chosen;
+                } else {
+                    lastDeepTopic = null;
+                    const pts = topic.points.slice();
+                    const p1 = pts.shift();
+                    const p2 = pick(pts);
+                    body = `${pick(topic.open)}\n\n${p1}${(p2 && p2 !== p1) ? ("\n\n" + p2) : ""}\n\n${pick(topic.close)}`;
+                }
+                return { text: body, quote: quote, topicId: topic.id, inferred: false };
+            }
+            lastDeepTopic = null;
+            // 软着陆：未命中时先接住，再反问，并给可点击的相关问题
+            const land = pick(SOFT_LANDINGS);
+            const suggestions = suggestQuestions(input);
+            return { text: land, quote: quote, topicId: "般若参悟", inferred: true, suggestions: suggestions };
+        }
+
+        /* 同一会话内，优先返回该深度主题尚未用过的 flow，全用过则重置再取 */
+        function pickFreshFlow(topic) {
+            const flows = topic.flow;
+            if (!usedFlows[topic.id]) usedFlows[topic.id] = new Set();
+            let used = usedFlows[topic.id];
+            if (used.size >= flows.length) used = usedFlows[topic.id] = new Set();
+            const avail = [];
+            for (let i = 0; i < flows.length; i++) { if (!used.has(i)) avail.push(i); }
+            const idx = avail[Math.floor(Math.random() * avail.length)];
+            used.add(idx);
+            return flows[idx];
+        }
+
+        /* 上一轮已在同一深度主题，本轮的承接开场（营造连续感） */
+        const DEEP_CONTINUE = [
+            "我们接着刚才的说。\n\n",
+            "你还在这件事里——那再往深处走一步。\n\n",
+            "既然你又问到这儿，我换个角度跟你说。\n\n"
+        ];
+
+        /* 软着陆开场白：以仁波切口吻接住情绪 + 反问，引导用户继续 */
+        const SOFT_LANDINGS = [
+            "你这个问题，我没有在书里找到一句正好对得上的话——但我感觉，你真正想问的，可能比字面更深一点。\n\n我们太习惯向外要一个“答案”，却很少回头看：是谁在问？那个不安、那个困惑，它此刻在你身体的哪个地方？\n\n先别急。换个角度，也许下面这几个问题，离你心里那块石头更近一些——",
+            "我读过的话里，没有一句能干净利落地回答你。但这未必是坏事——有时候问题本身，比答案更值得停下来看。\n\n你说的这件事背后，是害怕失去，还是放不下，还是觉得自己不够好？通常我们以为在问“怎么办”，其实是在问“我是谁”。\n\n如果你愿意，可以从这几个角度，再往里走一步——",
+            "这个问题，我手边没有现成的开示能照搬给你。但我想反问你一句：你要的是一个让你舒服的答案，还是一个让你看清楚的答案？这两者，往往不是同一个。\n\n先把焦虑放下一会儿，只是安静地看着那颗正在提问的心。\n\n下面几个问题，也许能帮你把模糊的感受，问得更清楚一点——"
+        ];
+
+        /* 根据输入猜测最接近的主题，给出该主题下的引导问题 */
+        const TOPIC_PROMPTS = {
+            "焦虑与当下": ["我总觉得人生还没真正开始，怎么办？","为什么我静不下来，总在担心未来？"],
+            "执着与放下": ["有件事/一个人我明知该放下，却放不下。","怎样才算真正的放下？"],
+            "无常与变化": ["我很害怕失去在乎的人和东西。","如何面对生活里突如其来的变化？"],
+            "情绪与自我": ["我很容易愤怒/难过，怎么和情绪相处？","为什么我总是被情绪牵着走？"],
+            "快乐与意义": ["我什么都有了，却感觉很空，为什么？","到底什么才是真正的幸福？"],
+            "关系与爱": ["我在一段关系里很痛苦，该怎么看？","为什么越想抓住，关系越糟？"],
+            "修行与佛法": ["普通人在忙碌生活里还谈得上修行吗？","我该不该皈依？修行到底在修什么？"],
+            "工作与内耗": ["工作让我特别内耗、特别累，怎么办？","我总是拖延，是不是我有问题？"],
+            "自我价值与攀比": ["我总觉得自己不如别人，很自卑。","为什么我控制不住地和别人比较？"],
+            "原生家庭与父母": ["我和父母的关系让我很痛苦。","我该如何和催我、控制我的父母相处？"],
+            "手机与现代生活": ["我手机上瘾，刷个不停，停不下来。","为什么我越闲越焦虑、越离不开屏幕？"],
+            "衰老与疾病": ["我开始害怕变老、害怕生病。","面对身体的衰退，我该怎么调整心态？"],
+            "孩子与教育": ["我该怎么教育我的孩子？","我是不是把太多期待压在孩子身上了？"],
+            "别离与思念": ["我无法接受和爱人的别离，怎么办？","我很想念一个已经离开的人，放不下。"]
+        };
+        const GENERIC_PROMPTS = ["我很焦虑，总觉得人生还没开始，怎么办？","我害怕失去在乎的人，如何面对无常？","我什么都有了却觉得很空，为什么？","忙碌的现代生活里，普通人还谈得上修行吗？"];
+
+        function suggestQuestions(input) {
+            const text = normalize(input);
+            // 用关键词软命中找最接近的主题（即使分数不足以触发完整回应）
+            let best = null, bestScore = 0;
+            for (const t of TOPICS) {
+                let score = 0;
+                for (const k of t.keywords) { if (text.includes(normalize(k))) score += 1; }
+                if (score > bestScore) { bestScore = score; best = t; }
+            }
+            let pool = (best && TOPIC_PROMPTS[best.id]) ? TOPIC_PROMPTS[best.id].slice() : [];
+            // 不足 3 条时用通用问题补齐
+            for (const g of GENERIC_PROMPTS) { if (pool.length >= 3) break; if (!pool.includes(g)) pool.push(g); }
+            return pool.slice(0, 3);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initAuth();
+            lucide.createIcons();
+        });
+
+        /* ============ 鉴权流程 ============ */
+        function initAuth() {
+            const phone = localStorage.getItem(CURR_USER_KEY);
+            const users = loadUsers();
+            if (phone && users[phone]) {
+                currentUser = { phone, dharma: users[phone].dharma };
+                enterApp();
+            }
+            // 否则停留在登录遮罩，等待用户登录/注册
+        }
+
+        function switchAuthTab(which) {
+            const isLogin = which === 'login';
+            document.getElementById('tab-login').classList.toggle('active', isLogin);
+            document.getElementById('tab-register').classList.toggle('active', !isLogin);
+            document.getElementById('form-login').classList.toggle('hidden', !isLogin);
+            document.getElementById('form-register').classList.toggle('hidden', isLogin);
+            document.getElementById('login-err').textContent = '';
+            document.getElementById('reg-err').textContent = '';
+        }
+
+        const PHONE_RE = /^1[3-9]\d{9}$/;
+        let sentCode = null;
+        function sendCode() {
+            const phone = document.getElementById('reg-phone').value.trim();
+            const err = document.getElementById('reg-err');
+            if (!PHONE_RE.test(phone)) { err.textContent = '请输入正确的 11 位手机号'; return; }
+            sentCode = String(Math.floor(100000 + Math.random() * 900000));
+            // 纯前端演示：验证码直接提示，不经过短信网关
+            const btn = document.getElementById('reg-send');
+            err.style.color = 'var(--color-text-muted)';
+            err.textContent = '演示验证码：' + sentCode + '（已自动填入）';
+            document.getElementById('reg-code').value = sentCode;
+            let n = 60; btn.disabled = true;
+            const timer = setInterval(() => {
+                btn.textContent = n + 's';
+                if (--n < 0) { clearInterval(timer); btn.disabled = false; btn.textContent = '获取验证码'; }
+            }, 1000);
+        }
+
+        function doRegister(e) {
+            e.preventDefault();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const code = document.getElementById('reg-code').value.trim();
+            const dharma = document.getElementById('reg-dharma').value.trim();
+            const pass = document.getElementById('reg-pass').value;
+            const err = document.getElementById('reg-err');
+            err.style.color = '#b25';
+            if (!PHONE_RE.test(phone)) { err.textContent = '请输入正确的 11 位手机号'; return false; }
+            if (!sentCode || code !== sentCode) { err.textContent = '验证码不正确，请先获取并填写'; return false; }
+            if (!dharma) { err.textContent = '请为自己取一个法号'; return false; }
+            if (pass.length < 6) { err.textContent = '密码至少 6 位'; return false; }
+            const users = loadUsers();
+            if (users[phone]) { err.textContent = '该手机号已注册，请直接登录'; return false; }
+            users[phone] = { dharma, pass };
+            saveUsers(users);
+            currentUser = { phone, dharma };
+            localStorage.setItem(CURR_USER_KEY, phone);
+            enterApp();
+            return false;
+        }
+
+        function doLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('login-phone').value.trim();
+            const pass = document.getElementById('login-pass').value;
+            const err = document.getElementById('login-err');
+            if (!PHONE_RE.test(phone)) { err.textContent = '请输入正确的 11 位手机号'; return false; }
+            const users = loadUsers();
+            if (!users[phone]) { err.textContent = '该手机号未注册，请先注册'; return false; }
+            if (users[phone].pass !== pass) { err.textContent = '密码不正确'; return false; }
+            currentUser = { phone, dharma: users[phone].dharma };
+            localStorage.setItem(CURR_USER_KEY, phone);
+            enterApp();
+            return false;
+        }
+
+        function doLogout() {
+            localStorage.removeItem(CURR_USER_KEY);
+            currentUser = null;
+            location.reload();
+        }
+
+        function enterApp() {
+            // 加载该用户的会话数据
+            sessions = JSON.parse(localStorage.getItem(sessKey())) || [];
+            currentSessionId = localStorage.getItem(currKey()) || null;
+            document.getElementById('dharma-name').textContent = currentUser.dharma;
+            const ov = document.getElementById('auth-overlay');
+            ov.classList.add('hidden-auth');
+            initApp();
+            lucide.createIcons();
+        }
+
+        function initApp() {
+            renderStarters();
+            if (sessions.length === 0) {
+                createNewSession();
+            } else {
+                if (!currentSessionId) currentSessionId = sessions[0].id;
+                switchSession(currentSessionId);
+            }
+        }
+
+        function renderStarters() {
+            const grid = document.getElementById('starters-grid');
+            grid.innerHTML = '';
+            STARTERS.forEach(s => {
+                const btn = document.createElement('button');
+                btn.className = "p-3 text-left text-xs bg-white/50 border border-stone-200 hover:border-amber-700/30 hover:bg-white rounded-xl transition-all duration-300 text-stone-700 font-medium leading-relaxed shadow-sm";
+                btn.innerHTML = s.text;
+                btn.onclick = () => {
+                    document.getElementById('user-query').value = s.text;
+                    handleSendSubmit();
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function createNewSession() {
+            const newId = 'session_' + Date.now();
+            const newSession = { id: newId, title: "未命名公案", messages: [] };
+            sessions.unshift(newSession);
+            currentSessionId = newId;
+            saveSessions();
+            switchSession(newId);
+        }
+
+        function switchSession(id) {
+            currentSessionId = id;
+            localStorage.setItem(currKey(), id);
+            const curr = sessions.find(s => s.id === id);
+            if (!curr) return;
+            renderSessionList();
+            const wrapper = document.getElementById('messages-wrapper');
+            const welcome = document.getElementById('welcome-space');
+            if (curr.messages.length === 0) {
+                wrapper.classList.add('hidden');
+                welcome.classList.remove('hidden');
+                document.getElementById('current-topic-badge').innerText = "觉察当下";
+            } else {
+                welcome.classList.add('hidden');
+                wrapper.classList.remove('hidden');
+                wrapper.innerHTML = '';
+                curr.messages.forEach(msg => appendMessageDOM(msg.role, msg.content, msg.quote, false, msg.suggestions));
+                wrapper.scrollTo({ top: wrapper.scrollHeight, behavior: 'smooth' });
+                const lastUserMsg = [...curr.messages].reverse().find(m => m.role === 'user');
+                if (lastUserMsg) {
+                    const topic = matchTopic(lastUserMsg.content);
+                    document.getElementById('current-topic-badge').innerText = topic ? topic.id : "般若参悟";
+                }
+            }
+        }
+
+        function renderSessionList() {
+            const list = document.getElementById('session-list');
+            list.innerHTML = '';
+            sessions.forEach(s => {
+                const isActive = s.id === currentSessionId;
+                const div = document.createElement('div');
+                div.className = `group flex items-center justify-between p-3 text-xs rounded-xl cursor-pointer transition-all duration-300 ${isActive ? 'bg-white shadow-sm font-semibold' : 'hover:bg-white/40 text-stone-600'}`;
+                div.onclick = () => switchSession(s.id);
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 truncate flex-1">
+                        <i data-lucide="message-square" class="w-3.5 h-3.5 opacity-60"></i>
+                        <span class="truncate pr-2">${escapeHtml(s.title)}</span>
+                    </div>
+                    <button onclick="deleteSession(event, '${s.id}')" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-700 rounded transition-opacity">
+                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function deleteSession(e, id) {
+            e.stopPropagation();
+            sessions = sessions.filter(s => s.id !== id);
+            if (currentSessionId === id) currentSessionId = sessions.length > 0 ? sessions[0].id : null;
+            saveSessions();
+            if (!currentSessionId) { createNewSession(); } else { switchSession(currentSessionId); }
+        }
+
+        function clearCurrentMessages() {
+            const curr = sessions.find(s => s.id === currentSessionId);
+            if (curr) {
+                curr.messages = [];
+                curr.title = "干净的初念";
+                saveSessions();
+                switchSession(currentSessionId);
+            }
+        }
+
+        function saveSessions() { localStorage.setItem(sessKey(), JSON.stringify(sessions)); }
+
+        async function handleSendSubmit() {
+            const inputEl = document.getElementById('user-query');
+            const text = inputEl.value.trim();
+            if (!text) return;
+            ZenAudio.playClick();
+            inputEl.value = '';
+
+            appendMessageDOM('user', text, null, false);
+            const curr = sessions.find(s => s.id === currentSessionId);
+            if (curr) {
+                if (curr.messages.length === 0) curr.title = text.slice(0, 12) + (text.length > 12 ? '…' : '');
+                curr.messages.push({ role: 'user', content: text });
+            }
+
+            document.getElementById('welcome-space').classList.add('hidden');
+            const wrapper = document.getElementById('messages-wrapper');
+            wrapper.classList.remove('hidden');
+
+            const botMsgDiv = appendMessageDOM('bot', "", null, true);
+            const localRes = buildResponse(text);
+            if (localRes.topicId) document.getElementById('current-topic-badge').innerText = localRes.topicId;
+            const finalResponseText = localRes.text;
+            const finalQuote = localRes.quote;
+
+            botMsgDiv.innerHTML = '';
+            const textContainer = document.createElement('div');
+            textContainer.className = "whitespace-pre-wrap leading-relaxed tracking-wide font-serif-zen typing-cursor text-[15px]";
+            botMsgDiv.appendChild(textContainer);
+
+            let index = 0;
+            // 长文本每帧多打几个字，避免深度回应等待过久
+            const step = finalResponseText.length > 120 ? 3 : (finalResponseText.length > 60 ? 2 : 1);
+            function typeNextChar() {
+                if (index < finalResponseText.length) {
+                    textContainer.textContent += finalResponseText.substr(index, step);
+                    index += step;
+                    setTimeout(typeNextChar, 16 + Math.random() * 22);
+                    if (index % 12 === 0) ZenAudio.playClick();
+                } else {
+                    textContainer.classList.remove('typing-cursor');
+                    if (finalQuote) appendQuoteCardDOM(botMsgDiv, finalQuote, localRes.inferred);
+                    if (localRes.suggestions && localRes.suggestions.length) appendSuggestionsDOM(botMsgDiv, localRes.suggestions);
+                    if (curr) {
+                        curr.messages.push({ role: 'bot', content: finalResponseText, quote: finalQuote, suggestions: localRes.suggestions });
+                        saveSessions();
+                        renderSessionList();
+                    }
+                }
+                const flowContainer = document.getElementById('chat-flow-container');
+                flowContainer.scrollTo({ top: flowContainer.scrollHeight, behavior: 'smooth' });
+            }
+            setTimeout(typeNextChar, 280);
+        }
+
+        function appendMessageDOM(role, content, quote, isLoading = false, suggestions = null) {
+            const wrapper = document.getElementById('messages-wrapper');
+            const block = document.createElement('div');
+            block.className = `flex flex-col ${role === 'user' ? 'items-end turn-start' : 'items-start'} message-appear`;
+
+            if (role === 'user') {
+                const bubble = document.createElement('div');
+                bubble.className = "max-w-[72%] px-4 py-2.5 rounded-2xl text-sm font-medium tracking-wide shadow-sm";
+                bubble.style.backgroundColor = "var(--color-accent)";
+                bubble.style.color = "#fff";
+                bubble.textContent = content;
+                block.appendChild(bubble);
+            } else {
+                const contentBox = document.createElement('div');
+                contentBox.className = "w-full max-w-[78%] px-6 py-5 rounded-2xl glass-panel text-stone-800 space-y-4 border border-stone-200/50 shadow-sm";
+                if (isLoading) {
+                    contentBox.innerHTML = `<div class="flex items-center gap-2 text-stone-400 text-xs tracking-widest font-light animate-pulse"><i data-lucide="compass" class="w-4 h-4 animate-spin"></i><span>观照因缘中...</span></div>`;
+                } else {
+                    contentBox.innerHTML = `<div class="text-[11px] font-semibold tracking-[0.2em] mb-1" style="color: var(--color-accent);">仁波切</div><div class="whitespace-pre-wrap leading-relaxed tracking-wide font-serif-zen text-[15px]">${content}</div>`;
+                    if (quote) appendQuoteCardDOM(contentBox, quote, false);
+                    if (suggestions && suggestions.length) appendSuggestionsDOM(contentBox, suggestions);
+                }
+                block.appendChild(contentBox);
+            }
+            wrapper.appendChild(block);
+            lucide.createIcons();
+            const flowContainer = document.getElementById('chat-flow-container');
+            flowContainer.scrollTo({ top: flowContainer.scrollHeight, behavior: 'smooth' });
+            return block.querySelector('div');
+        }
+
+        function appendSuggestionsDOM(parentContainer, suggestions) {
+            const box = document.createElement('div');
+            box.className = "flex flex-col gap-2 pt-1";
+            suggestions.forEach(q => {
+                const btn = document.createElement('button');
+                btn.className = "text-left text-[13px] px-3.5 py-2.5 rounded-xl bg-white/60 border border-stone-200 hover:border-amber-700/40 hover:bg-white transition-all duration-300 text-stone-700 leading-relaxed flex items-center gap-2 shadow-sm";
+                btn.innerHTML = `<i data-lucide="corner-down-right" class="w-3.5 h-3.5 shrink-0" style="color: var(--color-accent);"></i><span>${q}</span>`;
+                btn.onclick = () => {
+                    document.getElementById('user-query').value = q;
+                    handleSendSubmit();
+                };
+                box.appendChild(btn);
+            });
+            parentContainer.appendChild(box);
+            lucide.createIcons();
+        }
+
+        function appendQuoteCardDOM(parentContainer, quote, inferred) {
+            const src = quote.source || '公开语录';
+            // 来源分级：含"语录/转述/提炼/合集/访谈/开示"等的视为据观点整理，非逐字原文
+            const isParaphrase = /语录|转述|提炼|合集|访谈|开示|社媒|流传|网易|搜狐|喜马拉雅|主题）/.test(src);
+            const label = inferred ? '观点参考' : (isParaphrase ? '观点出处' : '原文出处');
+            const note = isParaphrase
+                ? '据仁波切公开观点整理，非逐字原文'
+                : '摘自其公开出版著作';
+            const details = document.createElement('details');
+            details.open = true;
+            details.className = "group border-t border-stone-300/40 pt-4 mt-2 text-xs transition-all duration-300";
+            details.innerHTML = `
+                <summary class="list-none flex items-center gap-1.5 cursor-pointer text-stone-400 hover:text-stone-600 transition-colors select-none">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                    <span class="font-medium tracking-wider">${label}：${src}</span>
+                    <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-open:rotate-180 ml-auto"></i>
+                </summary>
+                <div class="mt-3 p-3.5 rounded-xl bg-stone-50/80 border border-stone-200/40 text-stone-600 space-y-2 leading-relaxed font-serif-zen">
+                    <p class="font-medium text-[13px]">「 ${quote.text} 」</p>
+                    ${quote.en ? `<p class="text-[11px] italic font-sans opacity-70">${quote.en}</p>` : ''}
+                    <p class="text-[10px] text-stone-400 tracking-wide pt-1 border-t border-stone-200/40 mt-2">${note}</p>
+                </div>
+            `;
+            parentContainer.appendChild(details);
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

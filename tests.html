@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>对话引擎单元测试 | zong_sa</title>
+  <style>
+    body { font-family: -apple-system, "PingFang SC", sans-serif; background: #f3f1ec; color: #3a3a38; margin: 0; padding: 32px; }
+    h1 { font-size: 18px; font-weight: 600; }
+    #summary { font-size: 15px; margin: 12px 0 20px; padding: 12px 16px; border-radius: 8px; }
+    #summary.pass { background: #e3ece2; color: #3c5a3a; }
+    #summary.fail { background: #efe0de; color: #7a3a34; }
+    .suite { margin-bottom: 18px; }
+    .suite > h2 { font-size: 14px; font-weight: 600; color: #5a5a55; margin: 0 0 6px; }
+    .case { font-size: 13px; padding: 3px 0 3px 22px; position: relative; }
+    .case.ok::before { content: "✓"; position: absolute; left: 0; color: #5a8a55; }
+    .case.bad::before { content: "✗"; position: absolute; left: 0; color: #b25; }
+    .case .msg { color: #b25; margin-left: 8px; }
+    iframe { display: none; }
+  </style>
+</head>
+<body>
+  <h1>对话引擎单元测试</h1>
+  <div id="summary">加载 index.html 中……</div>
+  <div id="results"></div>
+  <iframe id="app" src="./index.html"></iframe>
+
+  <script>
+    /* 轻量断言框架：零依赖，结果渲染到页面 + window.__TEST_RESULTS__ 供外部读取 */
+    const suites = [];
+    let cur = null;
+    function describe(name, fn) { cur = { name, cases: [] }; suites.push(cur); fn(); }
+    function it(name, fn) {
+      try { fn(); cur.cases.push({ name, ok: true }); }
+      catch (e) { cur.cases.push({ name, ok: false, msg: e.message }); }
+    }
+    function assert(cond, msg) { if (!cond) throw new Error(msg || "断言失败"); }
+    function eq(a, b, msg) { if (a !== b) throw new Error((msg || "") + ` 期望 ${JSON.stringify(b)}，实际 ${JSON.stringify(a)}`); }
+
+    function runTests(W) {
+      const { normalize, matchCrisis, matchTopic, buildResponse, pickFreshFlow } = W;
+      // const TOPICS 是词法绑定，不挂到 contentWindow；用 matchTopic 反取主题对象
+      const topicOf = kw => matchTopic(kw);
+
+      describe("normalize 归一化", () => {
+        it("转小写", () => eq(normalize("ABc"), "abc"));
+        it("null/undefined 安全", () => { eq(normalize(null), ""); eq(normalize(undefined), ""); });
+      });
+
+      describe("matchCrisis 危机/敏感拦截", () => {
+        const isCrisis = t => { const r = matchCrisis(t); return !!r && r.indexOf("心理危机") > -1; };
+        const isMinor = t => { const r = matchCrisis(t); return !!r && r.indexOf("年轻") > -1; };
+        const isAbortion = t => { const r = matchCrisis(t); return !!r && r.indexOf("很重的决定") > -1; };
+
+        it("自杀意图命中危机", () => assert(isCrisis("我不想活了")));
+        it("『想解脱』命中危机（上轮修复）", () => assert(isCrisis("活着真的好累想解脱")));
+        it("『活着好累』命中危机", () => assert(isCrisis("活着好累")));
+        it("未成年『才15岁』命中关怀（正则）", () => assert(isMinor("我才15岁很迷茫")));
+        it("未成年『刚满13岁』命中关怀", () => assert(isMinor("刚满13岁")));
+        it("成年『我今年28』不误伤", () => assert(matchCrisis("我今年28很焦虑") === null));
+        it("堕胎类命中审慎回应", () => assert(isAbortion("我该不该堕胎")));
+        it("普通输入返回 null", () => assert(matchCrisis("今天天气怎么样") === null));
+      });
+
+      describe("matchTopic 主题匹配", () => {
+        it("别离关键词命中『别离与思念』", () => eq(matchTopic("别离思念阴阳两隔").id, "别离与思念"));
+        it("关系关键词命中『关系与爱』", () => eq(matchTopic("男朋友 婚姻 暧昧").id, "关系与爱"));
+        it("无关键词返回 null", () => assert(matchTopic("zzzz乱码无主题") === null));
+      });
+
+      describe("pickFreshFlow 会话内去重", () => {
+        const t = topicOf("别离思念阴阳两隔");
+        it("耗尽前不重复", () => {
+          W.usedFlows = {};
+          const seen = new Set();
+          for (let i = 0; i < t.flow.length; i++) seen.add(pickFreshFlow(t));
+          eq(seen.size, t.flow.length, "应取满全部不重复 flow");
+        });
+        it("池耗尽后自动重置不报错", () => {
+          W.usedFlows = {};
+          for (let i = 0; i < t.flow.length * 2 + 1; i++) assert(typeof pickFreshFlow(t) === "string");
+        });
+      });
+
+      describe("buildResponse 路由优先级与结构", () => {
+        it("返回结构含 text/topicId", () => {
+          const r = buildResponse("我总是很焦虑");
+          assert(r && typeof r.text === "string" && r.text.length > 0);
+          assert(typeof r.topicId === "string");
+        });
+        it("危机优先级最高（绕过 QA/主题）", () => {
+          eq(buildResponse("我不想活了").topicId, "请照顾好自己");
+        });
+        it("工具性提问走闲聊", () => {
+          eq(buildResponse("现在几点了").topicId, "信手拈来");
+        });
+      });
+
+      describe("情感深度 flow 加长（本轮改动）", () => {
+        [["别离与思念", "别离思念阴阳两隔"], ["关系与爱", "男朋友 婚姻 暧昧"]].forEach(([id, kw]) => {
+          const t = topicOf(kw);
+          it(`${id}：命中主题`, () => eq(t.id, id));
+          it(`${id}：5 条 flow`, () => eq(t.flow.length, 5));
+          it(`${id}：每条 ≥240 字`, () => t.flow.forEach((f, i) => assert(f.length >= 240, `第${i+1}条仅 ${f.length} 字`)));
+          it(`${id}：每条 5 段结构`, () => t.flow.forEach((f, i) => eq(f.split("\n\n").length, 5, `第${i+1}条段数`)));
+        });
+      });
+
+      render();
+    }
+
+    function render() {
+      let total = 0, fail = 0;
+      const root = document.getElementById("results");
+      root.innerHTML = "";
+      suites.forEach(s => {
+        const div = document.createElement("div");
+        div.className = "suite";
+        const h = document.createElement("h2");
+        h.textContent = s.name;
+        div.appendChild(h);
+        s.cases.forEach(c => {
+          total++; if (!c.ok) fail++;
+          const el = document.createElement("div");
+          el.className = "case " + (c.ok ? "ok" : "bad");
+          el.innerHTML = c.name + (c.ok ? "" : `<span class="msg">${c.msg}</span>`);
+          div.appendChild(el);
+        });
+        root.appendChild(div);
+      });
+      const sum = document.getElementById("summary");
+      sum.className = fail ? "fail" : "pass";
+      sum.textContent = fail ? `✗ ${fail}/${total} 个用例失败` : `✓ 全部 ${total} 个用例通过`;
+      window.__TEST_RESULTS__ = { total, fail, suites };
+    }
+
+    window.addEventListener("load", () => {
+      const iframe = document.getElementById("app");
+      const start = () => {
+        try {
+          const W = iframe.contentWindow;
+          if (typeof W.buildResponse !== "function") { setTimeout(start, 150); return; }
+          runTests(W);
+        } catch (e) {
+          document.getElementById("summary").className = "fail";
+          document.getElementById("summary").textContent = "加载失败：" + e.message;
+          window.__TEST_RESULTS__ = { total: 0, fail: 1, error: e.message };
+        }
+      };
+      setTimeout(start, 300);
+    });
+  </script>
+</body>
+</html>
